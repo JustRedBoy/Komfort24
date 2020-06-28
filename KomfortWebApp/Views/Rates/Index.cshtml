@@ -1,0 +1,57 @@
+﻿@model IEnumerable<Rates>
+@{
+    ViewData["Title"] = "Rates";
+}
+
+@section Stylesheets {
+    <link rel="stylesheet" href="~/css/rates.css" />
+}
+
+<h2>Тарифы за текущий месяц</h2>
+<h4>Выберите ваш дом:</h4>
+
+<div class="tab">
+    <button class="tablinks" onclick="openHouse(event, 0)">20/1</button>
+    <button class="tablinks" onclick="openHouse(event, 1)">20/2</button>
+    <button class="tablinks" onclick="openHouse(event, 2)">22/2</button>
+    <button class="tablinks" onclick="openHouse(event, 3)">24/2</button>
+    <button class="tablinks" onclick="openHouse(event, 4)">26/1</button>
+    <button class="tablinks" onclick="openHouse(event, 5)">26/2</button>
+</div>
+
+<div id="content" class="tabcontent">
+    <h3 id="adress"></h3>
+    <table id="info" class="table">
+        <tr>
+            <th scope="row" class="align-left">Тариф за отопление (общий)</th>
+            <td id="centralHeating"></td>
+        </tr>
+        <tr>
+            <th scope="row" class="align-left">Тариф за отопление (теплосчетчики)</th>
+            <td id="customHeating"></td>
+        </tr>
+        <tr>
+            <th scope="row" class="align-left">Тариф за воду</th>
+            <td id="water"></td>
+        </tr>
+        <tr>
+            <th scope="row" class="align-left">Тариф за содержание дома (общий)</th>
+            <td id="generalWer"></td>
+        </tr>
+        <tr>
+            <th scope="row" class="align-left">Тариф за содержание дома (специальный)</th>
+            <td id="specialWer"></td>
+        </tr>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        var data = [];
+        @foreach (var rate in Model)
+        {
+              @:data.push({ houseId: @((int)rate.HouseId), centralHeatingRate: @rate.CentralHeatingRate.ToString().Replace(',','.'), customHeatingRate: @rate.CustomHeatingRate.ToString().Replace(',', '.'), waterRate: @rate.WaterRate.ToString().Replace(',', '.'), generalWerRate: @rate.GeneralWerRate.ToString().Replace(',', '.'), specialWerRate: @rate.SpecialWerRate.ToString().Replace(',', '.') });
+         }
+    </script>
+    <script src="~/js/rates.js"></script>
+}
