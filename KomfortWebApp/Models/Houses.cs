@@ -6,7 +6,7 @@ namespace KomfortWebApp.Models
     {
         public enum House
         {
-            House_20_1 = 1,
+            House_20_1,
             House_20_2,
             House_22_2,
             House_24_2,
