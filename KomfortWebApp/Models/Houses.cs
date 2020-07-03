@@ -39,5 +39,27 @@ namespace KomfortWebApp.Models
             else if (numAcc >= 8115 && numAcc <= 8210) { return House.House_26_1; }
             else { return House.House_20_2; }
         }
+
+        public static int GetNumRow(Houses.House houseId, string accountId)
+        {
+            int start = GetHouseStart(houseId) - 1;
+            int numRow = int.Parse(accountId) - start;
+            if (accountId.Contains("/2"))
+            {
+                numRow++;
+            }
+            return numRow;
+        }
+
+        private static int GetHouseStart(House houseId) => houseId switch
+        {
+            House.House_20_1 => 7637,
+            House.House_20_2 => 8210,
+            House.House_22_2 => 7923,
+            House.House_24_2 => 7827,
+            House.House_26_1 => 8115,
+            House.House_26_2 => 8019,
+            _ => throw new ArgumentException("Недопустимый аккаунт")
+        };
     }
 }

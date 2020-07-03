@@ -103,7 +103,7 @@ function updateTotal() {
 }
 
 function inputAccountId(accountId) {
-    if (accountId.match(/(^[0]\d{4}$)|(^[0]\d{4}\/[1|2]$)/)) {
+    if (accountId.match(/(^\d{4}$)|(^\d{4}\/[1|2]$)/)) {
         hubConnection.invoke("GetAccountInfo", accountId);
     } else {
         document.getElementById("account-id").focus();

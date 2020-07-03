@@ -2,6 +2,7 @@
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using KomfortWebApp.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -11,9 +12,7 @@ namespace KomfortWebApp.Services
     public class GoogleSheets
     {
         private static readonly string[] Scopes = { SheetsService.Scope.SpreadsheetsReadonly };
-        private const string WerSpreadsheetId = "1LQ0CifcavN-T9RKV0MkAzgSA3KWNwuswkxGbGpl8VuE";
-        private const string HeatingSpreadsheetId = "1yFpPyeM2DlBRNYEPu_Zo0kkyuLay-u56Y-IeU_M9RfY";
-        private const string RatesSpreadsheetId = "1E0bdRIXxwgSyxw_OFWLjYaIoh1qv38IAUZS0xoy84IY";
+        private const string ServiceSpreadsheetId = "1E0bdRIXxwgSyxw_OFWLjYaIoh1qv38IAUZS0xoy84IY";
         private const string GoogleCredentialsFileName = "google-credentials.json";
 
         private readonly SpreadsheetsResource.ValuesResource _valuesResource;
@@ -36,19 +35,15 @@ namespace KomfortWebApp.Services
         public async Task<Account> GetAccountAsync(string accountId)
         {
             (Houses.House houseId, int numRow) = GetAccountInfo(accountId);
-            string fullHouseNumber = Houses.GetHouseInfo(houseId).fullHouseNumber;
-            var response = await _valuesResource.Get(WerSpreadsheetId, $"{fullHouseNumber}!A{numRow}:S{numRow}").ExecuteAsync();
-            var values = response.Values;
-
-            var response2 = await _valuesResource.Get(HeatingSpreadsheetId, $"{fullHouseNumber}!D{numRow}:R{numRow}").ExecuteAsync();
-            values.Add(response2.Values[0]);
-            return new Account(values);
+            var response = await _valuesResource.Get(ServiceSpreadsheetId, 
+                $"{Houses.GetHouseInfo(houseId).fullHouseNumber}!A{numRow}:AH{numRow}").ExecuteAsync();
+            return new Account(response.Values[0]);
         }
 
         public async Task<Rates> GetRatesAsync(Houses.House houseId)
         {
             int numRow = (int)houseId + 2;
-            var response = await _valuesResource.Get(RatesSpreadsheetId, $"Rates!B{numRow}:F{numRow}").ExecuteAsync();
+            var response = await _valuesResource.Get(ServiceSpreadsheetId, $"Rates!B{numRow}:F{numRow}").ExecuteAsync();
             return new Rates(houseId, 
                 double.Parse(response.Values[0][4].ToString()),
                 double.Parse(response.Values[0][3].ToString()),
@@ -60,7 +55,7 @@ namespace KomfortWebApp.Services
         public async Task<IEnumerable<Rates>> GetRatesAsync()
         {
             List<Rates> rates = new List<Rates>();
-            var response = await _valuesResource.Get(RatesSpreadsheetId, $"Rates!B2:F7").ExecuteAsync();
+            var response = await _valuesResource.Get(ServiceSpreadsheetId, $"Rates!B2:F7").ExecuteAsync();
 
             for (int i = 0; i < 6; i++)
             {
@@ -76,12 +71,8 @@ namespace KomfortWebApp.Services
 
         private (Houses.House houseId, int numRow) GetAccountInfo(string accountId)
         {
-            int numRow = int.Parse(accountId) - 7637 + 9;
-            if (accountId.Contains("/2"))
-            {
-                numRow++;
-            }
-            return (Houses.GetHouse(accountId), numRow);
+            Houses.House houseId = Houses.GetHouse(accountId);
+            return (houseId, Houses.GetNumRow(houseId, accountId));
         }
     }
 }

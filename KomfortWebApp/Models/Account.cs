@@ -44,27 +44,27 @@ namespace KomfortWebApp.Models
         //public int Persons { get; set; }
         //#endregion
 
-        public Account(IList<IList<object>> values)
+        public Account(IList<object> values)
         {
-            AccountId = values[0][1].ToString();
+            FlatNumber = values[0].ToString();
+            AccountId = values[1].ToString();
             HouseId = Houses.GetHouse(AccountId);
-            FlatNumber = values[0][0].ToString();
-            FlatOwner = values[0][2].ToString();
+            FlatOwner = values[2].ToString();
 
-            WerStateStart = GetNumberValue(values[0][3]) - GetNumberValue(values[0][4]);
-            WerSquare = GetNumberValue(values[0][5]);
-            WerForMonth = GetNumberValue(values[0][6]);
-            WerPayment = GetNumberValue(values[0][15]) + GetNumberValue(values[0][14]) - GetNumberValue(values[0][12]) - GetNumberValue(values[0][10]);
+            HeatingStateStart = Math.Round(GetNumberValue(values[3]) - GetNumberValue(values[4]), 2); // debet - credit
+            HeatingSquare = GetNumberValue(values[5]);
+            Type = GetHeatingType(values[6].ToString());
+            HeatingCurrentValue = GetNumberValue(values[7]);
+            HeatingPayment = Math.Round(GetNumberValue(values[13]) + GetNumberValue(values[14]) - GetNumberValue(values[11]), 2); // cashbox + bank - privileges
 
-            WaterCurrentValue = (int)GetNumberValue(values[0][7]);
-            WaterPrevValue = (int)GetNumberValue(values[0][8]);
-            WaterPayment = GetNumberValue(values[0][10]);
+            WerStateStart = Math.Round(GetNumberValue(values[18]) - GetNumberValue(values[19]), 2); // debet - credit
+            WerSquare = GetNumberValue(values[20]);
+            WerForMonth = GetNumberValue(values[21]);
+            WerPayment = Math.Round(GetNumberValue(values[29]) + GetNumberValue(values[30]) - GetNumberValue(values[25]) - GetNumberValue(values[27]), 2); // cashbox + bank - waterPayment - privileges
 
-            HeatingStateStart = GetNumberValue(values[1][0]) - GetNumberValue(values[1][1]);
-            HeatingSquare = GetNumberValue(values[1][2]);
-            Type = GetHeatingType(values[1][3].ToString());
-            HeatingCurrentValue = GetNumberValue(values[1][4]);
-            HeatingPayment = GetNumberValue(values[1][10]) + GetNumberValue(values[1][11]) - GetNumberValue(values[1][8]);
+            WaterCurrentValue = (int)GetNumberValue(values[22]);
+            WaterPrevValue = (int)GetNumberValue(values[23]);
+            WaterPayment = GetNumberValue(values[24]);
         }
 
         private HeatingType GetHeatingType(string type) => type switch
