@@ -8,7 +8,7 @@ using System.Threading;
 using Range = Microsoft.Office.Interop.Word.Range;
 using WinTasks = System.Threading.Tasks;
 
-namespace Management.Operations
+namespace Management.Commands
 {
     public static class GenerationFlyers
     {
@@ -69,7 +69,7 @@ namespace Management.Operations
         /// <summary>
         /// Starting process of generating flyers
         /// </summary>
-        public async static void StartGenerationAsync()
+        public async static WinTasks.Task StartGenerationAsync()
         {
             _cts = new CancellationTokenSource();
             Completed = false;
@@ -144,7 +144,7 @@ namespace Management.Operations
             3 => "26_1",
             4 => "26_2",
             5 => "20_2",
-            _ => throw new ArgumentException("Некорректный номер дома"),
+            _ => throw new ArgumentException("Некорректный номер дома")
         };
 
         /// <summary>

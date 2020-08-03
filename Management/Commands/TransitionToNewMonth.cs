@@ -1,6 +1,7 @@
 ﻿using GoogleLib;
+using System.Threading.Tasks;
 
-namespace Management.Operations
+namespace Management.Commands
 {
     public static class TransitionToNewMonth
     {
@@ -14,7 +15,7 @@ namespace Management.Operations
 
         public static bool Processing { get; set; } = false;
 
-        public async static void StartTransitionAsync()
+        public async static Task StartTransitionAsync()
         {
             Processing = true;
             GoogleDrive drive = new GoogleDrive();

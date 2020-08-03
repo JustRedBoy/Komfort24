@@ -1,6 +1,11 @@
-﻿using Management.Operations;
+﻿using Management.Commands;
+using Management.Models;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Management.ViewModels
 {
@@ -8,18 +13,86 @@ namespace Management.ViewModels
     {
         #region Fileds and Properties
 
+        private string _accountId = "";
+        private string _ownerInfo = "";
+        private bool _isSearchEnabled = true;
+        private bool _isFindPartEnabled = true;
+        private bool _isPrintEnabled = true;
+        //Collapsed	2	
+        //Hidden	1	
+        //Visible	0
+        private int _foundPaymentsVisibility = 2;
+
         private int _generationProgressValue = 0;
         private int _maxGenerationProgressValue = 577;
-        private string _generationMessage = "* Во время генерации нельзя пользоваться операциями копировать/вставить";
+        private string _generationMessage = 
+            "* Во время генерации нельзя пользоваться операциями копировать/вставить";
         private bool _isGenerationEnabled = true;
         private string _generationButtonText = "Начать";
         private bool _isGenerationPartEnabled = true;
 
-        private bool _isTransitionPartEnabled = true;
-        private int _maxTransitionProgressValue = 3; //
+        private int _maxTransitionProgressValue = 3; 
         private int _transitionProgressValue = 0;
         private bool _isTransitionEnabled = true;
         private string _transitionMessage = "";
+        private bool _isTransitionPartEnabled = true;
+
+        public string AccountId
+        {
+            get { return _accountId; }
+            set
+            {
+                _accountId = value;
+                OnPropertyChanged("AccountId");
+            }
+        }
+        public string OwnerInfo
+        {
+            get { return _ownerInfo; }
+            set
+            {
+                _ownerInfo = value;
+                OnPropertyChanged("OwnerInfo");
+            }
+        }
+        public bool IsSearchEnabled
+        {
+            get { return _isSearchEnabled; }
+            set
+            {
+                _isSearchEnabled = value;
+                OnPropertyChanged("IsSearchEnabled");
+            }
+        }
+        public bool IsFindPartEnabled
+        {
+            get { return _isFindPartEnabled; }
+            set
+            {
+                _isFindPartEnabled = value;
+                OnPropertyChanged("IsFindPartEnabled");
+            }
+        }
+        public bool IsPrintEnabled
+        {
+            get { return _isPrintEnabled; }
+            set
+            {
+                _isPrintEnabled = value;
+                OnPropertyChanged("IsPrintEnabled");
+            }
+        }
+        public int FoundPaymentsVisibility
+        {
+            get { return _foundPaymentsVisibility; }
+            set
+            {
+                _foundPaymentsVisibility = value;
+                OnPropertyChanged("FoundPaymentsVisibility");
+            }
+        }
+        public ObservableCollection<Payment> Payments { get; set; } 
+            = new ObservableCollection<Payment>();
 
         public int GenerationProgressValue
         {
@@ -76,15 +149,6 @@ namespace Management.ViewModels
             }
         }
 
-        public bool IsTransitionPartEnabled
-        {
-            get { return _isTransitionPartEnabled; }
-            set
-            {
-                _isTransitionPartEnabled = value;
-                OnPropertyChanged("IsTransitionPartEnabled");
-            }
-        }
         public int TransitionProgressValue
         {
             get { return _transitionProgressValue; }
@@ -121,19 +185,94 @@ namespace Management.ViewModels
                 OnPropertyChanged("TransitionMessage");
             }
         }
+        public bool IsTransitionPartEnabled
+        {
+            get { return _isTransitionPartEnabled; }
+            set
+            {
+                _isTransitionPartEnabled = value;
+                OnPropertyChanged("IsTransitionPartEnabled");
+            }
+        }
 
         #endregion
 
         #region Commands
 
-        private RelayCommand _generationCommand;
-        public RelayCommand GenerationCommand
+        private RalayCommand _searchCommand;
+        public RalayCommand SearchCommand
+        {
+            get
+            {
+                return _searchCommand ??
+                  (_searchCommand = new RalayCommand(async obj =>
+                  {
+                      if (TransitionToNewMonth.Processing ||
+                          PrintPayments.Processing || 
+                          SearchPayments.Processing) return;
+                      IsSearchEnabled = false;
+                      IsPrintEnabled = false;
+
+                      var payments = await SearchPayments.SearchAsync(AccountId);
+                      if (payments != null)
+                      {
+                          FoundPaymentsVisibility = 0;
+                          UpdatePayments(payments);
+                          if (payments.Count > 0)
+                          {
+                              string name = string.IsNullOrEmpty(payments[0].FlatOwner) ?
+                                 "\"Имя владельца\"" : payments[0].FlatOwner;
+                              OwnerInfo = $"{name} (лицевой счет: {AccountId})";
+                              if (!GenerationFlyers.Processing)
+                              {
+                                  IsPrintEnabled = true;
+                              }
+                          }
+                          else
+                          {
+                              OwnerInfo = "Платежи не найдены";
+                          }
+                      }
+                      else
+                      {
+                          OwnerInfo = "";
+                          UpdatePayments(null);
+                          FoundPaymentsVisibility = 2;
+                      }
+                      IsSearchEnabled = true;
+                  }));
+            }
+        }
+
+        private RalayCommand _printCommand;
+        public RalayCommand PrintCommand
+        {
+            get
+            {
+                return _printCommand ??
+                  (_printCommand = new RalayCommand(async obj =>
+                  {
+                      if (IsAnyProcessing()) return;
+                      IsGenerationPartEnabled = false;
+                      IsPrintEnabled = false;
+                      IsSearchEnabled = false;
+                      await Task.Run(() => PrintPayments.Print(Payments.ToList()));
+                      IsGenerationPartEnabled = true;
+                      IsPrintEnabled = true;
+                      IsSearchEnabled = true;
+                  }));
+            }
+        }
+
+        private RalayCommand _generationCommand;
+        public RalayCommand GenerationCommand
         {
             get
             {
                 return _generationCommand ??
-                  (_generationCommand = new RelayCommand(obj =>
+                  (_generationCommand = new RalayCommand(async obj =>
                   {
+                      if (TransitionToNewMonth.Processing || PrintPayments.Processing) return;
                       if (GenerationFlyers.Processing)
                       {
                           GenerationMessage = "Отмена генерации ...";
@@ -146,28 +285,31 @@ namespace Management.ViewModels
                           GenerationMessage = "Подготовка к созданию листовок ...";
                           IsGenerationEnabled = false;
                           IsTransitionPartEnabled = false;
+                          IsPrintEnabled = false;
                           GenerationFlyers.UpdateProgress += GenerateFlyers_UpdateProgress;
                           GenerationFlyers.CompletedGeneration += GenerateFlyers_CompletedGeneration;
-                          GenerationFlyers.StartGenerationAsync();
+                          await GenerationFlyers.StartGenerationAsync();
                       }
                   }));
             }
         }
 
-        private RelayCommand _transitionCommand;
-        public RelayCommand TransitionCommand
+        private RalayCommand _transitionCommand;
+        public RalayCommand TransitionCommand
         {
             get
             {
                 return _transitionCommand ??
-                  (_transitionCommand = new RelayCommand(obj =>
+                  (_transitionCommand = new RalayCommand(async obj =>
                   {
+                      if (IsAnyProcessing()) return;
                       TransitionMessage = "Подготовка к переходу на новый месяц ...";
                       IsTransitionEnabled = false;
                       IsGenerationPartEnabled = false;
-                      TransitionToNewMonth.UpdateProgress += TransitionToNewMonth_UpdateProgress;
-                      TransitionToNewMonth.CompletedTransition += TransitionToNewMonth_CompletedTransition;
-                      TransitionToNewMonth.StartTransitionAsync();
+                      IsFindPartEnabled = false;
+                      //TransitionToNewMonth.UpdateProgress += TransitionToNewMonth_UpdateProgress;
+                      //TransitionToNewMonth.CompletedTransition += TransitionToNewMonth_CompletedTransition;
+                      //await TransitionToNewMonth.StartTransitionAsync();
                   }));
             }
         }
@@ -175,6 +317,26 @@ namespace Management.ViewModels
         #endregion
 
         #region Methods
+
+        public bool CanExit() => !IsAnyProcessing();
+
+        private bool IsAnyProcessing() => 
+            GenerationFlyers.Processing ||
+            TransitionToNewMonth.Processing ||
+            SearchPayments.Processing ||
+            PrintPayments.Processing;
+
+        private void UpdatePayments(List<Payment> payments)
+        {
+            Payments.Clear();
+            if (payments != null && payments.Count > 0)
+            {
+                foreach (Payment payment in payments)
+                {
+                    Payments.Add(payment);
+                }
+            }
+        }
 
         private void GenerateFlyers_CompletedGeneration(int result)
         {
@@ -206,6 +368,10 @@ namespace Management.ViewModels
             GenerationProgressValue = 0;
             GenerationMessage = message;
             IsTransitionPartEnabled = true;
+            if (!SearchPayments.Processing && Payments.Count > 0)
+            {
+                IsPrintEnabled = true;
+            }
             GenerationFlyers.UpdateProgress -= GenerateFlyers_UpdateProgress;
             GenerationFlyers.CompletedGeneration -= GenerateFlyers_CompletedGeneration;
         }
@@ -216,6 +382,7 @@ namespace Management.ViewModels
             TransitionProgressValue = 0;
             TransitionMessage = message;
             IsGenerationPartEnabled = true;
+            IsFindPartEnabled = true;
             TransitionToNewMonth.UpdateProgress -= TransitionToNewMonth_UpdateProgress;
             TransitionToNewMonth.CompletedTransition -= TransitionToNewMonth_CompletedTransition;
         }

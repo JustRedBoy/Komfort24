@@ -26,12 +26,12 @@ namespace GoogleLib
                 int countNum = Houses.GetHouseInfo(i).fullHouseNumber == "24/2" ? 97 : 96;
                 for (int j = 0; j < countNum; j++)
                 {
-                    double heatingPayment = GetNumber(info[j][13]) + GetNumber(info[j][14]);
+                    double heatingPayment = GetNumber(info[j][13]) + GetNumber(info[j][14]); // previliges
                     double werPayment = GetNumber(info[j][29]) + GetNumber(info[j][30]);
                     if (heatingPayment != 0 || werPayment != 0) 
                     {
                         double forWater = GetNumber(info[j][25]);
-                        double forWer = Math.Round(werPayment - forWater, 2);
+                        double forWer = Math.Round(werPayment - forWater, 2); // previliges
                         payments.Add(new List<object>() 
                         {
                             info[j][1], 
@@ -149,8 +149,8 @@ namespace GoogleLib
 
         private async Task<IList<IList<object>>> ReadInfoAsync(string spreadSheetId, string readRange)
         {
-            var response = await _service.Spreadsheets.Values.Get(spreadSheetId, readRange)
-                .ExecuteAsync();
+            var response = await _service.Spreadsheets.Values.
+                Get(spreadSheetId, readRange).ExecuteAsync();
             return response.Values;
         }
 
@@ -249,6 +249,15 @@ namespace GoogleLib
             rates.Add(numMonth + 1);
 
             return rates;
+        }
+
+
+        //
+
+
+        public async Task<IList<IList<object>>> GetPaymentsAsync()
+        {
+            return await ReadInfoAsync(Sheets.PaymentsSpreadSheetId, "Список платежей!A2:H100000");
         }
     }
 }
