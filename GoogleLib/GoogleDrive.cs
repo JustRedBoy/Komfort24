@@ -3,7 +3,7 @@ using GData = Google.Apis.Drive.v3.Data;
 using Google.Apis.Drive.v3;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using GoogleLib.Tools;
+using System.Linq;
 
 namespace GoogleLib
 {
@@ -16,34 +16,16 @@ namespace GoogleLib
             _service = GoogleServices.GetDriveService();
         }
 
-        public async Task CreateFolderAndCopyFilesAsync()
-        {
-            string folderId = await CreateFolderAsync(Date.GetPrevDate());
-            await CopyFileAsync(Sheets.HeatingSpreadSheetId, $"Ведомость О ({Date.GetPrevDate()})", folderId);
-            await CopyFileAsync(Sheets.WerSpreadSheetId, $"Ведомость СД ({Date.GetPrevDate()})", folderId);
-        }
-
-        public async Task<bool> TransitionCheck()
+        public async Task<IEnumerable<string>> GetFilesAsync()
         {
             FilesResource.ListRequest listRequest = _service.Files.List();
             listRequest.PageSize = 100;
             listRequest.Fields = "nextPageToken, files(id, name)";
 
-            IList<GData.File> files = (await listRequest.ExecuteAsync()).Files;
-            if (files != null && files.Count > 0)
-            {
-                foreach (var file in files)
-                {
-                    if (file.Name == Date.GetPrevDate())
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
+             return (await listRequest.ExecuteAsync()).Files.Select(n => n.Name);
         }
 
-        private async Task<string> CreateFolderAsync(string folderName)
+        public async Task<string> CreateFolderAsync(string folderName)
         {
             GData.File FileMetaData = new GData.File
             {
@@ -58,7 +40,7 @@ namespace GoogleLib
             return file.Id;
         }
 
-        private async Task<GData.File> CopyFileAsync(string originFileId, string copyName, 
+        public async Task<GData.File> CopyFileAsync(string originFileId, string copyName, 
             string folderId = "root")
         {
             GData.File copiedFile = new GData.File

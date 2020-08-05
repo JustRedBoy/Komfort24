@@ -212,7 +212,7 @@ namespace Management.Commands
                     WordReplace(wordDoc, "{HSE}", Math.Round(GetNumberValue(info[i][15]) - GetNumberValue(info[i][16]), 2)); // debet - credit
                     WordReplace(wordDoc, "{WRSS}", Math.Round(GetNumberValue(info[i][18]) - GetNumberValue(info[i][19]), 2)); // debet - credit
                     WordReplace(wordDoc, "{WRR}", i < 6 ? rates[4] : rates[3]); // special or general
-                    WordReplace(wordDoc, "{FWR}", Math.Round(GetNumberValue(info[i][21]) - GetNumberValue(info[i][27]), 2)); // forWer - privilege
+                    WordReplace(wordDoc, "{FWR}", Math.Round(GetNumberValue(info[i][21]) - GetNumberValue(info[i][27]), 2)); // forWer - privileges
                     WordReplace(wordDoc, "{WRP}", Math.Round(GetNumberValue(info[i][29]) + GetNumberValue(info[i][30]) - GetNumberValue(info[i][25]), 2)); // cashbox + bank - forWater
                     WordReplace(wordDoc, "{WRSE}", Math.Round(GetNumberValue(info[i][31]) - GetNumberValue(info[i][32]), 2)); // debet - credit
                     WordReplace(wordDoc, "{CWV}", GetNumberValue(info[i][22])); // current water value

@@ -307,9 +307,9 @@ namespace Management.ViewModels
                       IsTransitionEnabled = false;
                       IsGenerationPartEnabled = false;
                       IsFindPartEnabled = false;
-                      //TransitionToNewMonth.UpdateProgress += TransitionToNewMonth_UpdateProgress;
-                      //TransitionToNewMonth.CompletedTransition += TransitionToNewMonth_CompletedTransition;
-                      //await TransitionToNewMonth.StartTransitionAsync();
+                      TransitionToNewMonth.UpdateProgress += TransitionToNewMonth_UpdateProgress;
+                      TransitionToNewMonth.CompletedTransition += TransitionToNewMonth_CompletedTransition;
+                      await TransitionToNewMonth.StartTransitionAsync();
                   }));
             }
         }

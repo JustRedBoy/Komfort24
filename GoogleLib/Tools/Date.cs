@@ -52,5 +52,8 @@ namespace GoogleLib.Tools
             12 => "декабрь",
             _ => throw new ArgumentException("Недопустимый месяц")
         };
+
+        public static string GetShortNumMonth(int numMonth) =>
+            numMonth < 10 ? "0" + numMonth : numMonth.ToString();
     }
 }
