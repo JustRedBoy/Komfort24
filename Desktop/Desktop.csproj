@@ -38,5 +38,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GoogleLib\GoogleLib.csproj" />
+    <ProjectReference Include="..\Models\Models.csproj" />
   </ItemGroup>
 </Project>

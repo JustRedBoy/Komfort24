@@ -2,7 +2,7 @@
 using Range = Microsoft.Office.Interop.Word.Range;
 using System;
 using System.Collections.Generic;
-using Desktop.Models;
+using Models;
 
 namespace Desktop.Commands
 {

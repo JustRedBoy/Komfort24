@@ -1,5 +1,5 @@
 ﻿using Desktop.Commands;
-using Desktop.Models;
+using Models;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;

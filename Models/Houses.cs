@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GoogleLib.Tools
+namespace Models
 {
     public static class Houses
     {
