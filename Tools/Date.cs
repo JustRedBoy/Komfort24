@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GoogleLib.Tools
+namespace Tools
 {
     public static class Date
     {
