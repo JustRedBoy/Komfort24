@@ -5,6 +5,7 @@ using System.Windows.Data;
 
 namespace Desktop.Converters
 {
+    [ValueConversion(typeof(int), typeof(Visibility))]
     public class VisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => ((int)value) switch

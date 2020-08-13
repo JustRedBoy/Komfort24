@@ -14,7 +14,7 @@ namespace Desktop.Commands
 
         public delegate void TransitionHandler(int value, string message);
         public static event TransitionHandler UpdateProgress;
-        public static event TransitionHandler CompletedTransition;
+        public static event TransitionHandler TransitionCompleted;
 
         #endregion
 
@@ -41,11 +41,11 @@ namespace Desktop.Commands
                 await CorrectFiles(sheets);
                 UpdateProgress?.Invoke(3, "Завершение ...");
 
-                CompletedTransition?.Invoke(0, "Все операции были успешно выполнены!");
+                TransitionCompleted?.Invoke(0, "Все операции были успешно выполнены!");
             }
             else
             {
-                CompletedTransition?.Invoke(-1, "Переход на новый месяц уже был выполнен в этом месяце!");
+                TransitionCompleted?.Invoke(-1, "Переход на новый месяц уже был выполнен в этом месяце!");
             }
             Processing = false;
         }

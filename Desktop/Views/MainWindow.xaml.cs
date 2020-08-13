@@ -14,7 +14,7 @@ namespace Desktop.Views
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (!((AppViewModel)DataContext).CanExit())
+            if (AppViewModel.IsAnyProcessing())
             {
                 e.Cancel = true;
             }
@@ -25,9 +25,9 @@ namespace Desktop.Views
             if (e.Key == Key.Return)
             {
                 var viewModel = (AppViewModel)DataContext;
-                if (viewModel.SearchCommand.CanExecute(null))
+                if (viewModel.SearchViewModel.SearchCommand.CanExecute(null))
                 {
-                    viewModel.SearchCommand.Execute(null);
+                    viewModel.SearchViewModel.SearchCommand.Execute(null);
                 }
             }
         }

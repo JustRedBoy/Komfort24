@@ -16,7 +16,7 @@ namespace Desktop.Commands
 
         public delegate void GenerationHandler(int value);
         public static event GenerationHandler UpdateProgress;
-        public static event GenerationHandler CompletedGeneration;
+        public static event GenerationHandler GenerationCompleted;
 
         #endregion
 
@@ -36,11 +36,11 @@ namespace Desktop.Commands
                 {
                     if (_completed)
                     {
-                        CompletedGeneration?.Invoke(0);
+                        GenerationCompleted?.Invoke(0);
                     }
                     else
                     {
-                        CompletedGeneration?.Invoke(-1);
+                        GenerationCompleted?.Invoke(-1);
                     }
                 }
             } 

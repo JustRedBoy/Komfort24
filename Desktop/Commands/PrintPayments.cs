@@ -43,14 +43,15 @@ namespace Desktop.Commands
             doc.Tables[1].Rows[1].Cells[6].Range.Text = "Год";
 
             doc.Tables[1].Rows.Add(doc.Tables[1].Rows[1]);
-            doc.Tables[1].Rows[1].Cells[1].Merge(doc.Tables[1].Rows[1].Cells[2]);
-            doc.Tables[1].Rows[1].Cells[1].Merge(doc.Tables[1].Rows[1].Cells[2]);
-            doc.Tables[1].Rows[1].Cells[1].Merge(doc.Tables[1].Rows[1].Cells[2]);
-            doc.Tables[1].Rows[1].Cells[1].Merge(doc.Tables[1].Rows[1].Cells[2]);
-            doc.Tables[1].Rows[1].Cells[1].Merge(doc.Tables[1].Rows[1].Cells[2]);
+            for (int i = 0; i < 5; i++)
+            {
+                doc.Tables[1].Rows[1].Cells[1].Merge(doc.Tables[1].Rows[1].Cells[2]);
+            }
+
             string name = string.IsNullOrEmpty(payments[0].FlatOwner) ?
                 "\"Имя владельца\"" : payments[0].FlatOwner;
-            doc.Tables[1].Rows[1].Cells[1].Range.Text = $"Платежи для {name}  (лицевой счет: {payments[0].AccountId})";
+            doc.Tables[1].Rows[1].Cells[1].Range.Text = 
+                $"Платежи для {name}  (лицевой счет: {payments[0].AccountId})";
 
             Range rng = doc.Content;
             rng.SetRange(rng.End, rng.End);
