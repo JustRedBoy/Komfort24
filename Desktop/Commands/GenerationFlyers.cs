@@ -16,7 +16,6 @@ namespace Desktop.Commands
 
         public delegate void GenerationHandler(int value);
         public static event GenerationHandler UpdateProgress;
-        public static event GenerationHandler GenerationCompleted;
 
         #endregion
 
@@ -24,27 +23,6 @@ namespace Desktop.Commands
 
         public static bool Processing { get; set; } = false;
         public static bool IsCancelled { get; set; } = false;
-
-        private static bool _completed = false;
-        private static bool Completed 
-        { 
-            get { return _completed; }
-            set 
-            {
-                _completed = value;
-                if (_generated != 0)
-                {
-                    if (_completed)
-                    {
-                        GenerationCompleted?.Invoke(0);
-                    }
-                    else
-                    {
-                        GenerationCompleted?.Invoke(-1);
-                    }
-                }
-            } 
-        }
 
         private static int _generated = 0;
         private static int Generated
@@ -69,53 +47,61 @@ namespace Desktop.Commands
         /// <summary>
         /// Starting process of generating flyers
         /// </summary>
-        public async static WinTasks.Task StartGenerationAsync()
+        public static async WinTasks.Task<bool> StartGenerationAsync()
         {
             _cts = new CancellationTokenSource();
-            Completed = false;
             Processing = true;
             IsCancelled = false;
 
             string folderPath = Environment.CurrentDirectory + $"\\Листовки за {Date.GetNamePrevMonth()}";
             Directory.CreateDirectory(folderPath);
 
-            //start generation in 6 tasks
-            WinTasks.Task[] tasks = new WinTasks.Task[6];
-            for (int i = 0; i < 6; i++)
+            try
             {
-                int num = i;
-                tasks[i] = WinTasks.Task.Run(() => Start(GetHouse(num), 0, _cts.Token));
-            }
-            await WinTasks.Task.WhenAll(tasks);
-
-            //extra generation, if we had errors
-            if (!_cts.IsCancellationRequested)
-            {
-                for (int i = 0; i < 6; i++)
+                //start generation in 6 tasks
+                WinTasks.Task<int>[] tasks = new WinTasks.Task<int>[6];
+                for (int i = 0; i < 6; i++) 
                 {
-                    string filePath = folderPath + $"\\{GetHouse(i)}.txt";
-                    if (File.Exists(filePath))
-                    {
-                        string num;
-                        using (StreamReader file = new StreamReader(filePath))
-                        {
-                            num = file.ReadLine();
-                        }
-                        File.Delete(filePath);
-                        await WinTasks.Task.Run(() => Start(GetHouse(i), int.Parse(num), _cts.Token));
-                        i--; // check errors in extra generation
-                    }
+                    int num = i;
+                    tasks[i] = WinTasks.Task.Run(() => Start(GetHouse(num), 0, _cts.Token));
                 }
-                Completed = true;
-            }
-            else
-            {
-                Completed = false;
-            }
+                await WinTasks.Task.WhenAll(tasks);
 
-            _cts?.Dispose();
-            Processing = false;
-            Generated = 0;
+                //extra generation, if we had errors
+                if (!_cts.IsCancellationRequested)
+                {
+                    for (int i = 0; i < 6; i++)
+                    {
+                        string filePath = folderPath + $"\\{GetHouse(i)}.txt";
+                        if (File.Exists(filePath))
+                        {
+                            string num;
+                            using (StreamReader file = new StreamReader(filePath))
+                            {
+                                num = file.ReadLine();
+                            }
+                            File.Delete(filePath);
+                            await WinTasks.Task.Run(() => Start(GetHouse(i), int.Parse(num), _cts.Token));
+                            i--; // check errors in extra generation
+                        }
+                    }
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                throw e.InnerException;
+            }
+            finally
+            {
+                _cts?.Dispose();
+                Generated = 0;
+                Processing = false;
+            }
         }
 
         /// <summary>
@@ -127,7 +113,6 @@ namespace Desktop.Commands
             {
                 IsCancelled = true;
                 _cts?.Cancel();
-                _cts?.Dispose();
             }
         }
 
@@ -153,7 +138,7 @@ namespace Desktop.Commands
         /// <param name="house">House number</param>
         /// <param name="startNum">Flat number to start generation process</param>
         /// <param name="token">Token to cancel</param>
-        private static void Start(string house, int startNum, CancellationToken token = default)
+        private static int Start(string house, int startNum, CancellationToken token = default)
         {
             GoogleSheets googleSheets = new GoogleSheets();
             IList<IList<object>> info = googleSheets.GetHouseInfo(house);
@@ -193,7 +178,7 @@ namespace Desktop.Commands
                 {
                     if (token.IsCancellationRequested)
                     {
-                        return;
+                        return i;
                     }
                     Paste(wordApp, wordDoc);
                     WordReplace(wordDoc, "{NM}", info[i][2]);
@@ -229,11 +214,13 @@ namespace Desktop.Commands
                     generatedInHouse++;
                     Generated++;
                 }
+                return countNum;
             }
             catch (Exception)
             {
                 using var swError = new StreamWriter(folderPath + $"\\{house}.txt", false);
                 swError.WriteLine(generatedInHouse);
+                return generatedInHouse;
             }
             finally
             {

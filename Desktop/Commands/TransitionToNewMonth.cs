@@ -14,51 +14,50 @@ namespace Desktop.Commands
 
         public delegate void TransitionHandler(int value, string message);
         public static event TransitionHandler UpdateProgress;
-        public static event TransitionHandler TransitionCompleted;
 
         #endregion
 
         public static bool Processing { get; set; } = false;
 
-        public async static Task StartTransitionAsync()
+        public async static Task<bool> StartTransitionAsync()
         {
             Processing = true;
             GoogleDrive drive = new GoogleDrive();
             GoogleSheets sheets = new GoogleSheets();
 
-            if (await TransitionCheck(drive))
+            try
             {
-                //Create folder and copy files
-                UpdateProgress?.Invoke(0, "Копирование файлов в отдельную папку ...");
-                await CreateFolderAndCopyFilesAsync(drive);
+                if (await TransitionCheck(drive))
+                {
+                    await CreateFolderAndCopyFilesAsync(drive);
+                    await AddNewPayments(sheets);
+                    await CorrectFiles(sheets);
 
-                //Add payments
-                UpdateProgress?.Invoke(1, "Добавление платежей ...");
-                await AddNewPayments(sheets);
-
-                //Correct files
-                UpdateProgress?.Invoke(2, "Переход на новый месяц в файлах ...");
-                await CorrectFiles(sheets);
-                UpdateProgress?.Invoke(3, "Завершение ...");
-
-                TransitionCompleted?.Invoke(0, "Все операции были успешно выполнены!");
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
-            else
+            finally
             {
-                TransitionCompleted?.Invoke(-1, "Переход на новый месяц уже был выполнен в этом месяце!");
+                Processing = false;
             }
-            Processing = false;
         }
 
         private static async Task CreateFolderAndCopyFilesAsync(GoogleDrive drive)
         {
+            UpdateProgress?.Invoke(1, "Создание отдельной папки для файлов ...");
             string folderId = await drive.CreateFolderAsync(Date.GetPrevDate());
+            UpdateProgress?.Invoke(2, "Копирование файлов в отдельную папку ...");
             await drive.CopyFileAsync(Sheets.HeatingSpreadSheetId, $"Ведомость О ({Date.GetPrevDate()})", folderId);
             await drive.CopyFileAsync(Sheets.WerSpreadSheetId, $"Ведомость СД ({Date.GetPrevDate()})", folderId);
         }
 
         private static async Task<bool> TransitionCheck(GoogleDrive drive)
         {
+            UpdateProgress?.Invoke(0, "Проверка ...");
             IEnumerable<string> files = await drive.GetFilesAsync();
             if (files != null && files.Count() > 0)
             {
@@ -78,6 +77,7 @@ namespace Desktop.Commands
             IList<IList<object>> payments = new List<IList<object>>();
             for (int i = 0; i < Houses.NumberHouses; i++)
             {
+                UpdateProgress?.Invoke(i + 3, $"Формирование платежей для дома {Houses.GetHouseInfo(i).fullHouseNumber} ...");
                 var info = await sheets.ReadInfoAsync(Sheets.ServiceSpreadSheetId,
                     $"{Houses.GetHouseInfo(i).fullHouseNumber}!A1:AH97");
                 int countNum = Houses.GetHouseInfo(i).fullHouseNumber == "24/2" ? 97 : 96;
@@ -128,6 +128,7 @@ namespace Desktop.Commands
 
             for (int i = 0; i < Houses.NumberHouses; i++)
             {
+                UpdateProgress?.Invoke(i + 9, $"Переход на новый месяц дома {Houses.GetHouseInfo(i).fullHouseNumber} ...");
                 string houseNum = Houses.GetHouseInfo(i).fullHouseNumber;
                 int numFlats = Houses.GetNumFlats(i);
 

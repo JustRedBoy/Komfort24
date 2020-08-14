@@ -3,6 +3,8 @@ using Google.Apis.Sheets.v4.Data;
 using Tools;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System;
+using GoogleLib.Exceptions;
 
 namespace GoogleLib
 {
@@ -17,17 +19,31 @@ namespace GoogleLib
 
         public async Task<IList<IList<object>>> ReadInfoAsync(string spreadSheetId, string readRange)
         {
-            var response = await _service.Spreadsheets.Values.
-                Get(spreadSheetId, readRange).ExecuteAsync();
-            return response.Values;
+            try
+            {
+                var response = await _service.Spreadsheets.Values.
+                    Get(spreadSheetId, readRange).ExecuteAsync();
+                return response?.Values;
+            }
+            catch (Exception e)
+            {
+                throw AccessDeniedException.CreateException(e);
+            }
         }
 
         public async Task WriteInfoAsync(IList<IList<object>> info, string spreadSheetId, string writeRange)
         {
-            var valueRange = new ValueRange { Values = info };
-            var update = _service.Spreadsheets.Values.Update(valueRange, spreadSheetId, writeRange);
-            update.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
-            await update.ExecuteAsync();
+            try
+            {
+                var valueRange = new ValueRange { Values = info };
+                var update = _service.Spreadsheets.Values.Update(valueRange, spreadSheetId, writeRange);
+                update.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
+                await update.ExecuteAsync();
+            }
+            catch (Exception e)
+            {
+                throw AccessDeniedException.CreateException(e);
+            }
         }
 
         public async Task<IList<IList<object>>> GetHouseInfoAsync(string houseNumber)

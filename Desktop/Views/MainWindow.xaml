@@ -119,7 +119,7 @@
                             Command="{Binding SearchCommand}"/>
                     </StackPanel>
                     <TextBlock 
-                            Text="{Binding OwnerInfo, UpdateSourceTrigger=PropertyChanged}"
+                            Text="{Binding SearchInfo, UpdateSourceTrigger=PropertyChanged}"
                             Margin="0,10"
                             HorizontalAlignment="Center"
                             FontSize="18"/>
@@ -181,7 +181,7 @@
                         Margin="35,0,20,5" 
                         FontSize="14" 
                         VerticalAlignment="Center"
-                        Text="{Binding GenerationMessage, UpdateSourceTrigger=PropertyChanged}"/>
+                        Text="{Binding GenerationInfo, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
             </TabItem.Content>
         </TabItem>
@@ -214,7 +214,7 @@
                         Margin="35,0,20,5" 
                         FontSize="14" 
                         VerticalAlignment="Center"
-                        Text="{Binding TransitionMessage, UpdateSourceTrigger=PropertyChanged}"/>
+                        Text="{Binding TransitionInfo, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
             </TabItem.Content>
         </TabItem>

@@ -4,6 +4,7 @@ using Google.Apis.Drive.v3;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+using GoogleLib.Exceptions;
 
 namespace GoogleLib
 {
@@ -21,8 +22,14 @@ namespace GoogleLib
             FilesResource.ListRequest listRequest = _service.Files.List();
             listRequest.PageSize = 100;
             listRequest.Fields = "nextPageToken, files(id, name)";
-
-             return (await listRequest.ExecuteAsync()).Files.Select(n => n.Name);
+            try
+            {
+                return (await listRequest.ExecuteAsync()).Files.Select(n => n.Name);
+            }
+            catch (Exception e)
+            {
+                throw AccessDeniedException.CreateException(e);
+            }
         }
 
         public async Task<string> CreateFolderAsync(string folderName)
@@ -36,11 +43,18 @@ namespace GoogleLib
 
             request = _service.Files.Create(FileMetaData);
             request.Fields = "id";
-            var file = await request.ExecuteAsync();
-            return file.Id;
+            try
+            {
+                var file = await request.ExecuteAsync();
+                return file.Id;
+            }
+            catch (Exception e)
+            {
+                throw AccessDeniedException.CreateException(e);
+            }
         }
 
-        public async Task<GData.File> CopyFileAsync(string originFileId, string copyName, 
+        public async Task CopyFileAsync(string originFileId, string copyName, 
             string folderId = "root")
         {
             GData.File copiedFile = new GData.File
@@ -50,11 +64,11 @@ namespace GoogleLib
             };
             try
             {
-                return await _service.Files.Copy(copiedFile, originFileId).ExecuteAsync();
+                await _service.Files.Copy(copiedFile, originFileId).ExecuteAsync();
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return null;
+                throw AccessDeniedException.CreateException(e);
             }
         }
     }

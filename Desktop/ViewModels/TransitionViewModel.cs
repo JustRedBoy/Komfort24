@@ -1,12 +1,13 @@
 ﻿using Desktop.Commands;
+using System;
 
 namespace Desktop.ViewModels
 {
     public class TransitionViewModel : ViewModelBase
     {
-        private int _maxTransitionProgressValue = 3;
+        private int _maxTransitionProgressValue = 14;
         private int _transitionProgressValue = 0;
-        private string _transitionMessage = "";
+        private string _transitionInfo = "";
 
         public int TransitionProgressValue
         {
@@ -26,13 +27,13 @@ namespace Desktop.ViewModels
                 OnPropertyChanged("MaxTransitionProgressValue");
             }
         }
-        public string TransitionMessage
+        public string TransitionInfo
         {
-            get { return _transitionMessage; }
+            get { return _transitionInfo; }
             set
             {
-                _transitionMessage = value;
-                OnPropertyChanged("TransitionMessage");
+                _transitionInfo = value;
+                OnPropertyChanged("TransitionInfo");
             }
         }
 
@@ -44,27 +45,36 @@ namespace Desktop.ViewModels
                 return _transitionCommand ??
                   (_transitionCommand = new RelayCommand(async obj =>
                   {
-                      TransitionMessage = "Подготовка к переходу на новый месяц ...";
-                      TransitionToNewMonth.UpdateProgress += UpdateProgress;
-                      TransitionToNewMonth.TransitionCompleted += TransitionCompleted;
-                      await TransitionToNewMonth.StartTransitionAsync();
-                      RelayCommand.RaiseCanExecuteChanged();
+                      try
+                      {
+                          TransitionToNewMonth.UpdateProgress += UpdateProgress;
+                          bool isSuccessful = await TransitionToNewMonth.StartTransitionAsync();
+                          TransitionCompleted(isSuccessful ? "Все операции были успешно выполнены!" 
+                              : "Переход на новый месяц уже был выполнен в этом месяце!");
+                      }
+                      catch (Exception e)
+                      {
+                          TransitionCompleted(e.Message);
+                      }
+                      finally
+                      {
+                          RelayCommand.RaiseCanExecuteChanged();
+                      }
                   },                
                   obj => !AppViewModel.IsAnyProcessing()));
             }
         }
 
-        private void TransitionCompleted(int value, string message)
+        private void TransitionCompleted(string message)
         {
             TransitionProgressValue = 0;
-            TransitionMessage = message;
+            TransitionInfo = message;     
             TransitionToNewMonth.UpdateProgress -= UpdateProgress;
-            TransitionToNewMonth.TransitionCompleted -= TransitionCompleted;
         }
         private void UpdateProgress(int value, string message)
         {
             TransitionProgressValue = value;
-            TransitionMessage = message;
+            TransitionInfo = message;
         }
     }
 }

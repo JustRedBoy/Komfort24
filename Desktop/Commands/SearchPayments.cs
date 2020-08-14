@@ -13,25 +13,31 @@ namespace Desktop.Commands
         public static async Task<List<Payment>> SearchAsync(string accountId)
         {
             Processing = true;
-            List<Payment> payments = null;
-            Regex regex = new Regex(@"(\d{4}$)|(\d{4}/[1|2]$)");
-            MatchCollection matches = regex.Matches(accountId);
-            if (matches.Count > 0)
+            try
             {
-                GoogleSheets googleSheets = new GoogleSheets();
-                var info = await googleSheets.GetPaymentsAsync();
-
-                payments = new List<Payment>();
-                foreach (var item in info)
+                List<Payment> payments = null;
+                Regex regex = new Regex(@"(\d{4}$)|(\d{4}/[1|2]$)");
+                MatchCollection matches = regex.Matches(accountId);
+                if (matches.Count > 0)
                 {
-                    if (item[0].ToString() == accountId)
+                    GoogleSheets googleSheets = new GoogleSheets();
+                    var info = await googleSheets.GetPaymentsAsync();
+
+                    payments = new List<Payment>();
+                    foreach (var item in info)
                     {
-                        payments.Add(new Payment(item));
+                        if (item[0].ToString() == accountId)
+                        {
+                            payments.Add(new Payment(item));
+                        }
                     }
                 }
+                return payments;
             }
-            Processing = false;
-            return payments;
+            finally
+            {
+                Processing = false;
+            }
         }
     }
 }

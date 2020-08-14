@@ -1,5 +1,6 @@
 ﻿using Desktop.Commands;
 using Models;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace Desktop.ViewModels
     public class SearchViewModel : ViewModelBase
     {
         private string _accountId = "";
-        private string _ownerInfo = "";
+        private string _searchInfo = "";
         //Collapsed	2	
         //Hidden	1	
         //Visible	0
@@ -25,13 +26,13 @@ namespace Desktop.ViewModels
                 OnPropertyChanged("AccountId");
             }
         }
-        public string OwnerInfo
+        public string SearchInfo
         {
-            get { return _ownerInfo; }
+            get { return _searchInfo; }
             set
             {
-                _ownerInfo = value;
-                OnPropertyChanged("OwnerInfo");
+                _searchInfo = value;
+                OnPropertyChanged("SearchInfo");
             }
         }
         public int FoundPaymentsVisibility
@@ -53,29 +54,19 @@ namespace Desktop.ViewModels
                 return _searchCommand ??
                   (_searchCommand = new RelayCommand(async obj =>
                   {
-                      var payments = await SearchPayments.SearchAsync(AccountId);
-                      if (payments != null)
+                      try
                       {
-                          FoundPaymentsVisibility = 0;
-                          UpdatePayments(payments);
-                          if (payments.Count > 0)
-                          {
-                              string name = string.IsNullOrEmpty(payments[0].FlatOwner) ?
-                                 "\"Имя владельца\"" : payments[0].FlatOwner;
-                              OwnerInfo = $"{name} (лицевой счет: {AccountId})";
-                          }
-                          else
-                          {
-                              OwnerInfo = "Платежи не найдены";
-                          }
+                          var payments = await SearchPayments.SearchAsync(AccountId);
+                          SearchCompleted(payments, "Не правильный формат");
                       }
-                      else
+                      catch (Exception e)
                       {
-                          OwnerInfo = "";
-                          UpdatePayments(null);
-                          FoundPaymentsVisibility = 2;
+                          SearchCompleted(null, e.Message);
                       }
-                      RelayCommand.RaiseCanExecuteChanged();
+                      finally
+                      {
+                          RelayCommand.RaiseCanExecuteChanged();
+                      }
                   },
                   obj => !TransitionToNewMonth.Processing &&
                          !SearchPayments.Processing &&
@@ -92,10 +83,45 @@ namespace Desktop.ViewModels
                 return _printCommand ??
                   (_printCommand = new RelayCommand(async obj =>
                   {
-                      await Task.Run(() => PrintPayments.Print(Payments.ToList()));
-                      RelayCommand.RaiseCanExecuteChanged();
+                      try
+                      {
+                          await Task.Run(() => PrintPayments.Print(Payments.ToList()));
+                      }
+                      catch (Exception e)
+                      {
+                          SearchInfo = "Не удается распечатать файл. " + e.Message;
+                      }
+                      finally
+                      {
+                          RelayCommand.RaiseCanExecuteChanged();
+                      }
                   },
                   obj => !AppViewModel.IsAnyProcessing() && Payments.Count > 0));
+            }
+        }
+
+        private void SearchCompleted(List<Payment> payments, string errorMessage = "")
+        {
+            if (payments != null)
+            {
+                FoundPaymentsVisibility = 0;
+                UpdatePayments(payments);
+                if (payments.Count > 0)
+                {
+                    string name = string.IsNullOrEmpty(payments[0].FlatOwner) ?
+                       "\"Имя владельца\"" : payments[0].FlatOwner;
+                    SearchInfo = $"{name} (лицевой счет: {AccountId})";
+                }
+                else
+                {
+                    SearchInfo = "Платежи не найдены";
+                }
+            }
+            else
+            {
+                SearchInfo = errorMessage;
+                UpdatePayments(null);
+                FoundPaymentsVisibility = 2;
             }
         }
 

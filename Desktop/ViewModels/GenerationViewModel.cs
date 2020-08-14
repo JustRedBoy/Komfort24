@@ -1,4 +1,5 @@
 ﻿using Desktop.Commands;
+using System;
 
 namespace Desktop.ViewModels
 {
@@ -6,7 +7,7 @@ namespace Desktop.ViewModels
     {
         private int _generationProgressValue = 0;
         private int _maxGenerationProgressValue = 577;
-        private string _generationMessage =
+        private string _generationInfo =
             "* Во время генерации нельзя пользоваться операциями копировать/вставить";
         private bool _isGenerationEnabled = true;
         private string _generationButtonText = "Начать";
@@ -29,13 +30,13 @@ namespace Desktop.ViewModels
                 OnPropertyChanged("MaxGenerationProgressValue");
             }
         }
-        public string GenerationMessage
+        public string GenerationInfo
         {
-            get { return _generationMessage; }
+            get { return _generationInfo; }
             set
             {
-                _generationMessage = value;
-                OnPropertyChanged("GenerationMessage");
+                _generationInfo = value;
+                OnPropertyChanged("GenerationInfo");
             }
         }
         public bool IsGenerationEnabled
@@ -65,20 +66,32 @@ namespace Desktop.ViewModels
                 return _generationCommand ??
                   (_generationCommand = new RelayCommand(async obj =>
                   {
-                      if (GenerationFlyers.Processing)
+                      if (!GenerationFlyers.Processing)
                       {
-                          GenerationMessage = "Отмена генерации ...";
-                          IsGenerationEnabled = false;
-                          GenerationFlyers.CancelGeneration();
+                          try
+                          {
+                              GenerationButtonText = "Отменить";
+                              GenerationInfo = "Подготовка к созданию листовок ...";
+                              IsGenerationEnabled = false;
+                              GenerationFlyers.UpdateProgress += UpdateProgress;
+                              bool isSuccessful = await GenerationFlyers.StartGenerationAsync();
+                              GenerationCompleted(isSuccessful ? "Генерация листовок завершена"
+                                  : "Генерация листовок отменена");
+                          }
+                          catch (Exception e)
+                          {
+                              GenerationCompleted(e.Message);
+                          }
+                          finally
+                          {
+                              RelayCommand.RaiseCanExecuteChanged();
+                          }
                       }
                       else
                       {
-                          GenerationButtonText = "Отменить";
-                          GenerationMessage = "Подготовка к созданию листовок ...";
+                          GenerationInfo = "Отмена генерации ...";
                           IsGenerationEnabled = false;
-                          GenerationFlyers.UpdateProgress += UpdateProgress;
-                          GenerationFlyers.GenerationCompleted += GenerationCompleted;
-                          await GenerationFlyers.StartGenerationAsync();
+                          GenerationFlyers.CancelGeneration();
                       }
                   },
                   obj => (!TransitionToNewMonth.Processing &&
@@ -87,17 +100,6 @@ namespace Desktop.ViewModels
             }
         }
 
-        private void GenerationCompleted(int result)
-        {
-            if (result == 0)
-            {
-                GenerationCompleted("Генерация листовок завершена");
-            }
-            else
-            {
-                GenerationCompleted("Генерация листовок отменена");
-            }
-        }
         private void UpdateProgress(int value)
         {
             if (!GenerationFlyers.IsCancelled)
@@ -107,7 +109,7 @@ namespace Desktop.ViewModels
                     IsGenerationEnabled = true;
                 }
                 GenerationProgressValue = value;
-                GenerationMessage = $"Создание листовок ... {value} / {MaxGenerationProgressValue}";
+                GenerationInfo = $"Создание листовок ... {value} / {MaxGenerationProgressValue}";
             }
         }
         private void GenerationCompleted(string message)
@@ -115,10 +117,8 @@ namespace Desktop.ViewModels
             IsGenerationEnabled = true;
             GenerationButtonText = "Начать";
             GenerationProgressValue = 0;
-            GenerationMessage = message;
+            GenerationInfo = message;
             GenerationFlyers.UpdateProgress -= UpdateProgress;
-            GenerationFlyers.GenerationCompleted -= GenerationCompleted;
-            RelayCommand.RaiseCanExecuteChanged();
         }
     }
 }
