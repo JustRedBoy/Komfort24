@@ -17,6 +17,11 @@ namespace GoogleLib
             _service = GoogleServices.GetDriveService();
         }
 
+        /// <summary>
+        /// Get file names from Google Drive
+        /// </summary>
+        /// <returns>Collection of file names</returns>
+        /// <exception cref="AccessDeniedException">Thrown when had problem with there was an access problem with Google Drive</exception>
         public async Task<IEnumerable<string>> GetFilesAsync()
         {
             FilesResource.ListRequest listRequest = _service.Files.List();
@@ -32,6 +37,12 @@ namespace GoogleLib
             }
         }
 
+        /// <summary>
+        /// Creating folder on Google Drive
+        /// </summary>
+        /// <param name="folderName">Folder name to create</param>
+        /// <returns>New folder ID</returns>
+        /// <exception cref="AccessDeniedException">Thrown when had problem with there was an access problem with Google Drive</exception>
         public async Task<string> CreateFolderAsync(string folderName)
         {
             GData.File FileMetaData = new GData.File
@@ -54,8 +65,14 @@ namespace GoogleLib
             }
         }
 
-        public async Task CopyFileAsync(string originFileId, string copyName, 
-            string folderId = "root")
+        /// <summary>
+        /// Copy files to special folder
+        /// </summary>
+        /// <param name="originFileId">File ID to copy</param>
+        /// <param name="copyName">Copied file name</param>
+        /// <param name="folderId">Folder ID</param>
+        /// <exception cref="AccessDeniedException">Thrown when had problem with there was an access problem with Google Drive</exception>
+        public async Task CopyFileAsync(string originFileId, string copyName, string folderId = "root")
         {
             GData.File copiedFile = new GData.File
             {

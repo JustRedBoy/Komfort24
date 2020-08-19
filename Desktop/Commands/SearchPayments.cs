@@ -6,17 +6,22 @@ using System.Threading.Tasks;
 
 namespace Desktop.Commands
 {
-    public static class SearchPayments
+    internal static class SearchPayments
     {
-        public static bool Processing { get; set; } = false;
+        internal static bool Processing { get; set; } = false;
 
-        public static async Task<List<Payment>> SearchAsync(string accountId)
+        /// <summary>
+        /// Starting the payments search process
+        /// </summary>
+        /// <param name="accountId">Account to search payments</param>
+        /// <returns></returns>
+        internal static async Task<List<Payment>> SearchAsync(string accountId)
         {
             Processing = true;
             try
             {
                 List<Payment> payments = null;
-                Regex regex = new Regex(@"(\d{4}$)|(\d{4}/[1|2]$)");
+                Regex regex = new Regex(@"(\d{4}$)|(\d{4}/[1|2]$)"); // 4 digits or 4 digits with /1 or /2
                 MatchCollection matches = regex.Matches(accountId);
                 if (matches.Count > 0)
                 {

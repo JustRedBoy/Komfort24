@@ -8,23 +8,22 @@ using System.Threading;
 
 namespace GoogleLib
 {
-    public static class GoogleServices
+    /// <summary>
+    /// Class for getting google services
+    /// </summary>
+    internal static class GoogleServices
     {
-        private static readonly string AppName = "komfort24";
-        private static readonly object locker = new object();
-        public static SheetsService GetSheetsService()
+        private static readonly string _appName = "komfort24";
+        internal static SheetsService GetSheetsService()
         {
-            lock (locker)
+            return new SheetsService(new BaseClientService.Initializer()
             {
-                return new SheetsService(new BaseClientService.Initializer()
-                {
-                    HttpClientInitializer = GetUserCredential(SheetsService.Scope.Spreadsheets),
-                    ApplicationName = AppName,
-                });
-            }
+                HttpClientInitializer = GetUserCredential(SheetsService.Scope.Spreadsheets),
+                ApplicationName = _appName,
+            });
         }
 
-        public static SheetsService GetSheetsServiceWithoutLogin()
+        internal static SheetsService GetSheetsServiceWithoutLogin()
         {
             using var stream = new FileStream("google-credentials.json", FileMode.Open, FileAccess.Read);
             var serviceInitializer = new BaseClientService.Initializer
@@ -35,16 +34,13 @@ namespace GoogleLib
             return new SheetsService(serviceInitializer);
         }
 
-        public static DriveService GetDriveService()
+        internal static DriveService GetDriveService()
         {
-            lock (locker)
+            return new DriveService(new BaseClientService.Initializer()
             {
-                return new DriveService(new BaseClientService.Initializer()
-                {
-                    HttpClientInitializer = GetUserCredential(DriveService.Scope.Drive, SheetsService.Scope.Spreadsheets),
-                    ApplicationName = AppName,
-                });
-            }
+                HttpClientInitializer = GetUserCredential(DriveService.Scope.Drive, SheetsService.Scope.Spreadsheets),
+                ApplicationName = _appName,
+            });
         }
 
         private static UserCredential GetUserCredential(params string[] scopes)

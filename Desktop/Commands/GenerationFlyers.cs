@@ -12,17 +12,11 @@ namespace Desktop.Commands
 {
     public static class GenerationFlyers
     {
-        #region Delegates and Events
+        internal delegate void GenerationHandler(int value);
+        internal static event GenerationHandler UpdateProgress;
 
-        public delegate void GenerationHandler(int value);
-        public static event GenerationHandler UpdateProgress;
-
-        #endregion
-
-        #region Fileds and Properties
-
-        public static bool Processing { get; set; } = false;
-        public static bool IsCancelled { get; set; } = false;
+        internal static bool Processing { get; set; } = false;
+        internal static bool IsCancelled { get; set; } = false;
 
         private static int _generated = 0;
         private static int Generated
@@ -40,14 +34,10 @@ namespace Desktop.Commands
 
         private static CancellationTokenSource _cts;
 
-        #endregion
-
-        #region Methods
-
         /// <summary>
         /// Starting process of generating flyers
         /// </summary>
-        public static async Task<bool> StartGenerationAsync()
+        internal static async Task<bool> StartGenerationAsync()
         {
             _cts = new CancellationTokenSource();
             Processing = true;
@@ -59,14 +49,14 @@ namespace Desktop.Commands
             {
                 //start generation in 6 tasks
                 Task<int>[] tasks = new Task<int>[6];
-                for (int i = 0; i < 6; i++) 
+                for (int i = 0; i < Houses.Count; i++) 
                 {
                     int num = i;
                     tasks[i] = Task.Run(() => Start(Houses.GetHouseInfo(num).fullHouseNumber, 0, _cts.Token));
                 }
                 await Task.WhenAll(tasks);
 
-                //extra generation, if we had errors
+                //extra generation if there were errors
                 if (!_cts.IsCancellationRequested)
                 {
                     for (int i = 0; i < Houses.Count; i++)
@@ -103,7 +93,7 @@ namespace Desktop.Commands
         /// <summary>
         /// Сanceling process of generating flyers
         /// </summary>
-        public static void CancelGeneration()
+        internal static void CancelGeneration()
         {
             if (Processing)
             {
@@ -112,12 +102,6 @@ namespace Desktop.Commands
             }
         }
 
-        /// <summary>
-        /// Generation flyers of house
-        /// </summary>
-        /// <param name="house">House number</param>
-        /// <param name="startNum">Flat number to start generation process</param>
-        /// <param name="token">Token to cancel</param>
         private static int Start(string house, int startNum, CancellationToken token = default)
         {
             GoogleSheets googleSheets = new GoogleSheets();
@@ -171,7 +155,5 @@ namespace Desktop.Commands
                 word.Quit();
             }
         }
-
-        #endregion
     }
 }

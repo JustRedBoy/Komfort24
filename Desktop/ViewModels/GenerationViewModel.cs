@@ -75,8 +75,8 @@ namespace Desktop.ViewModels
                               IsGenerationEnabled = false;
                               GenerationFlyers.UpdateProgress += UpdateProgress;
                               bool isSuccessful = await GenerationFlyers.StartGenerationAsync();
-                              GenerationCompleted(isSuccessful ? "Генерация листовок завершена"
-                                  : "Генерация листовок отменена");
+                              GenerationCompleted(isSuccessful ? "Генерация листовок завершена":
+                                  "Генерация листовок отменена");
                           }
                           catch (Exception e)
                           {

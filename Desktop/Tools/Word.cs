@@ -6,11 +6,14 @@ using System.Collections.Generic;
 
 namespace Desktop.Tools
 {
-    public class Word
+    /// <summary>
+    /// Class for working with Microsoft Word
+    /// </summary>
+    internal class Word
     {
-        public Application Application { get; }
+        internal Application Application { get; }
 
-        public Word()
+        internal Word()
         {
             Application = new Application
             {
@@ -18,7 +21,7 @@ namespace Desktop.Tools
             };
         }
 
-        public Document CreatePaymentsDocument()
+        internal Document CreatePaymentsDocument()
         {
             Document doc = CreateDocument();
 
@@ -26,50 +29,41 @@ namespace Desktop.Tools
             doc.Content.Font.Name = "Calibri";
             return doc;
         }
-
-        public Document CreateDocument()
+        internal Document CreateDocument()
         {
             return Application.Documents.Add();
         }
-
-        public Document OpenDocument(string path, bool isReadonly = false)
+        internal Document OpenDocument(string path, bool isReadonly = false)
         {
             return Application.Documents.Open(path, ReadOnly: isReadonly);
         }
-
-        public void SaveDocumentAs(Document doc, string path)
+        internal void SaveDocumentAs(Document doc, string path)
         {
             doc.SaveAs(path);
         }
-
-        public void SaveDocument(Document doc)
+        internal void SaveDocument(Document doc)
         {
             doc.Save();
         }
-
-        public void CopyDocument(string sourceFile, string copiedFile)
+        internal void CopyDocument(string sourceFile, string copiedFile)
         {
             Document doc = Application.Documents.Open(sourceFile, ReadOnly: true);
             doc.SaveAs(copiedFile);
             doc.Close();
         }
-
-        public void PrintDocument(Document doc)
+        internal void PrintDocument(Document doc)
         {
             doc.PrintOut();
         }
-
-        public void CloseDocument(Document doc)
+        internal void CloseDocument(Document doc)
         {
             doc.Close();
         }
-
-        public void Quit()
+        internal void Quit()
         {
             Application.Quit();
         }
-
-        public void FormationPaymentsDocument(Document doc, List<Payment> payments)
+        internal void FormationPaymentsDocument(Document doc, List<Payment> payments)
         {
             CreateTemplatePaymentsTable(doc);
 
@@ -88,7 +82,6 @@ namespace Desktop.Tools
             content.SetRange(content.End, content.End);
             content.Text = "\n\nБухгалтер ЧП СК Комфорт Одесса              Крепак Н.В.";
         }
-
         private void FormingPayment(Document doc, Payment payment)
         {
             Paste(doc, false);
@@ -99,8 +92,7 @@ namespace Desktop.Tools
             WordReplace(doc, "{MT}", payment.Month);
             WordReplace(doc, "{YR}", payment.Year);
         }
-
-        public void FormationFlayer(Document doc, IList<object> info, IList<object> rates, string house)
+        internal void FormationFlayer(Document doc, IList<object> info, IList<object> rates, string house)
         {
             Paste(doc);
             WordReplace(doc, "{NM}", info[2]);
@@ -135,7 +127,6 @@ namespace Desktop.Tools
             WordReplace(doc, "{GP}", "-");
             WordReplace(doc, "{GSE}", "-");
         }
-
         private void CreateTemplatePaymentsTable(Document doc)
         {
             Microsoft.Office.Interop.Word.Range tableRange = doc.Content;
@@ -170,7 +161,6 @@ namespace Desktop.Tools
             table.Cell(1, 5).VerticalAlignment = WdCellVerticalAlignment.wdCellAlignVerticalCenter;
             table.Cell(1, 6).VerticalAlignment = WdCellVerticalAlignment.wdCellAlignVerticalCenter;
 
-            //Table table = doc.Tables[1];
             table.Rows.Add(table.Rows[1]);
             table.Rows[1].Range.Font.Bold = -1;
             table.Cell(1, 1).Range.Text = "За содержание дома";
@@ -186,12 +176,6 @@ namespace Desktop.Tools
                 table.Cell(1, 1).Merge(table.Cell(1, 2));
             }
         }
-
-        /// <summary>
-        /// Paste info to word document
-        /// </summary>
-        /// <param name="doc">Word document</param>
-        /// <param name="start">Need to insert at the beginning or at the end of document</param>
         private void Paste(Document doc, bool start = true)
         {
             Microsoft.Office.Interop.Word.Range range = doc.Content;
@@ -206,13 +190,6 @@ namespace Desktop.Tools
             range.Select();
             Application.Selection.Paste();
         }
-
-        /// <summary>
-        /// Replace template string
-        /// </summary>
-        /// <param name="doc">Word document</param>
-        /// <param name="replace">Template string</param>
-        /// <param name="replaceWith">Text to replace</param>
         private void WordReplace(Document doc, string replace, object replaceWith)
         {
             doc.Content.Find.Execute(FindText: replace, ReplaceWith: replaceWith);

@@ -1,5 +1,8 @@
 ﻿namespace GoogleLib
 {
+    /// <summary>
+    /// Class for storing spreadsheet IDs
+    /// </summary>
     public static class Sheets
     {
         public const string WerSpreadSheetId = "1LQ0CifcavN-T9RKV0MkAzgSA3KWNwuswkxGbGpl8VuE";

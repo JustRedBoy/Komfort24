@@ -17,6 +17,13 @@ namespace GoogleLib
             _service = GoogleServices.GetSheetsService();
         }
 
+        /// <summary>
+        /// Get information from a range in a spreadsheet
+        /// </summary>
+        /// <param name="spreadSheetId">Source spreadsheet ID</param>
+        /// <param name="readRange">Range with information</param>
+        /// <returns>Requested information</returns>
+        /// <exception cref="AccessDeniedException">Thrown when had problem with there was an access problem with Google Drive</exception>
         public async Task<IList<IList<object>>> ReadInfoAsync(string spreadSheetId, string readRange)
         {
             try
@@ -31,6 +38,13 @@ namespace GoogleLib
             }
         }
 
+        /// <summary>
+        /// Write information to a range in a spreadsheet
+        /// </summary>
+        /// <param name="info">Information to write</param>
+        /// <param name="spreadSheetId">Source spreadsheet ID</param>
+        /// <param name="writeRange">Range to write</param>
+        /// <exception cref="AccessDeniedException">Thrown when had problem with there was an access problem with Google Drive</exception>
         public async Task WriteInfoAsync(IList<IList<object>> info, string spreadSheetId, string writeRange)
         {
             try
@@ -46,16 +60,34 @@ namespace GoogleLib
             }
         }
 
+        /// <summary>
+        /// Get information about house
+        /// </summary>
+        /// <param name="houseNumber">House number for information</param>
+        /// <returns>Requested information</returns>
+        /// <exception cref="AccessDeniedException">Thrown when had problem with there was an access problem with Google Drive</exception>
         public async Task<IList<IList<object>>> GetHouseInfoAsync(string houseNumber)
         {
             return await ReadInfoAsync(Sheets.ServiceSpreadSheetId, $"{houseNumber}!A1:AH97");
         }
 
+        /// <summary>
+        /// Get information about house
+        /// </summary>
+        /// <param name="houseNumber">House number for information</param>
+        /// <returns>Requested information</returns>
+        /// <exception cref="AccessDeniedException">Thrown when had problem with there was an access problem with Google Drive</exception>
         public IList<IList<object>> GetHouseInfo(string houseNumber)
         {
             return GetHouseInfoAsync(houseNumber).Result;
         }
 
+        /// <summary>
+        /// Get information about rates
+        /// </summary>
+        /// <param name="houseNumber">House number for information</param>
+        /// <returns>Requested information</returns>
+        /// <exception cref="AccessDeniedException">Thrown when had problem with there was an access problem with Google Drive</exception>
         public async Task<IList<object>> GetRatesAsync(string houseNumber)
         {
             var response = await ReadInfoAsync(Sheets.ServiceSpreadSheetId, $"Rates!B2:H7");
@@ -78,11 +110,22 @@ namespace GoogleLib
             return rates;
         }
 
+        /// <summary>
+        /// Get information about rates
+        /// </summary>
+        /// <param name="houseNumber">House number for information</param>
+        /// <returns>Requested information</returns>
+        /// <exception cref="AccessDeniedException">Thrown when had problem with there was an access problem with Google Drive</exception>
         public IList<object> GetRates(string houseNumber)
         {
             return GetRatesAsync(houseNumber).Result;
         }
 
+        /// <summary>
+        /// Get information about payments
+        /// </summary>
+        /// <returns>Requested payments</returns>
+        /// <exception cref="AccessDeniedException">Thrown when had problem with there was an access problem with Google Drive</exception>
         public async Task<IList<IList<object>>> GetPaymentsAsync()
         {
             return await ReadInfoAsync(Sheets.PaymentsSpreadSheetId, "Список платежей!A2:H100000");

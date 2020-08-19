@@ -124,7 +124,6 @@ namespace Desktop.ViewModels
                 FoundPaymentsVisibility = 2;
             }
         }
-
         private void UpdatePayments(List<Payment> payments)
         {
             Payments.Clear();

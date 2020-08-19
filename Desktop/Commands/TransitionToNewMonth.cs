@@ -8,18 +8,18 @@ using System.Threading.Tasks;
 
 namespace Desktop.Commands
 {
-    public static class TransitionToNewMonth
+    internal static class TransitionToNewMonth
     {
-        #region Delegates and Events
+        internal delegate void TransitionHandler(int value, string message);
+        internal static event TransitionHandler UpdateProgress;
 
-        public delegate void TransitionHandler(int value, string message);
-        public static event TransitionHandler UpdateProgress;
+        internal static bool Processing { get; set; } = false;
 
-        #endregion
-
-        public static bool Processing { get; set; } = false;
-
-        public async static Task<bool> StartTransitionAsync()
+        /// <summary>
+        /// Starting of the transition to a new month
+        /// </summary>
+        /// <returns></returns>
+        internal async static Task<bool> StartTransitionAsync()
         {
             Processing = true;
             GoogleDrive drive = new GoogleDrive();
@@ -63,6 +63,7 @@ namespace Desktop.Commands
             {
                 foreach (string name in files)
                 {
+                    //if a folder with a special name exists, then the transition has already been
                     if (name == Date.GetPrevDate())
                     {
                         return false;
@@ -80,8 +81,7 @@ namespace Desktop.Commands
                 UpdateProgress?.Invoke(i + 3, $"Формирование платежей для дома {Houses.GetHouseInfo(i).fullHouseNumber} ...");
                 var info = await sheets.ReadInfoAsync(Sheets.ServiceSpreadSheetId,
                     $"{Houses.GetHouseInfo(i).fullHouseNumber}!A1:AH97");
-                int countNum = Houses.GetNumFlats(i);
-                for (int j = 0; j < countNum; j++)
+                for (int j = 0; j < Houses.GetNumFlats(i); j++)
                 {
                     double heatingPayment = Number.GetDouble(info[j][13]) + Number.GetDouble(info[j][14]) + Number.GetDouble(info[j][11]);
                     double werPayment = Number.GetDouble(info[j][29]) + Number.GetDouble(info[j][30]) + Number.GetDouble(info[j][27]);

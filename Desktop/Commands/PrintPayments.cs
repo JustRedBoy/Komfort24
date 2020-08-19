@@ -6,11 +6,15 @@ using System.IO;
 
 namespace Desktop.Commands
 {
-    public static class PrintPayments
+    internal static class PrintPayments
     {
-        public static bool Processing { get; set; } = false;
+        internal static bool Processing { get; set; } = false;
 
-        public static void Print(List<Payment> payments) 
+        /// <summary>
+        /// Starting the payments printing process
+        /// </summary>
+        /// <param name="payments">Payments to print</param>
+        internal static void Print(List<Payment> payments) 
         {
             if (payments == null || payments.Count <= 0) return;
             Processing = true;

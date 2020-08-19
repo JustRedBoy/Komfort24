@@ -5,6 +5,10 @@ namespace Models
     public static class Houses
     {
         public static int Count { get => Enum.GetNames(typeof(House)).Length; }
+
+        /// <summary>
+        /// Enumeration of existing houses
+        /// </summary>
         public enum House
         {
             House_20_1,
@@ -15,7 +19,12 @@ namespace Models
             House_26_2
         }
 
-        public static (int houseNumber, int part, string fullHouseNumber, string fullAdress) GetHouseInfo(int house) => house switch
+        /// <summary>
+        /// Get information about the house
+        /// </summary>
+        /// <param name="houseNum"></param>
+        /// <returns>Tuple with house number, part of house, full house number and full adress</returns>
+        public static (int houseNumber, int part, string fullHouseNumber, string fullAdress) GetHouseInfo(int houseNum) => houseNum switch
         {
             0 => (20, 1, "20/1", "ул. Пишоновская, 20/1"),
             1 => (20, 2, "20/2", "ул. Пишоновская, 20/2"),
@@ -26,6 +35,31 @@ namespace Models
             _ => throw new ArgumentException("Недопустимый номер дома")
         };
 
+        /// <summary>
+        /// Get the number of flats in the house
+        /// </summary>
+        /// <param name="houseNum">House number for information</param>
+        /// <returns>Number of flats in the house</returns>
+        public static int GetNumFlats(int houseNum)
+        {
+            return houseNum == 3 ? 97 : 96;
+        }
+
+        /// <summary>
+        /// Get the number of flats in the house
+        /// </summary>
+        /// <param name="house">House for information</param>
+        /// <returns>Number of flats in the house</returns>
+        public static int GetNumFlats(string house)
+        {
+            return house == "24/2" ? 97 : 96;
+        }
+
+        //public static int GetNumFlats(House house)
+        //{
+        //    return house == House.House_24_2 ? 97 : 96;
+        //}
+
         //public static (int houseNumber, int part, string fullHouseNumber, string fullAdress) GetHouseInfo(House house) => house switch
         //{
         //    House.House_20_1 => (20, 1, "20/1", "Пишоновская, 20/1"),
@@ -35,6 +69,17 @@ namespace Models
         //    House.House_26_1 => (26, 1, "26/1", "Пишоновская, 26/1"),
         //    House.House_26_2 => (26, 2, "26/2", "Пишоновская, 26/2"),
         //    _ => throw new ArgumentException("Недопустимый номер дома")
+        //};
+
+        //private static int GetHouseStart(House house) => house switch
+        //{
+        //    House.House_20_1 => 7637,
+        //    House.House_20_2 => 8210,
+        //    House.House_22_2 => 7923,
+        //    House.House_24_2 => 7827,
+        //    House.House_26_1 => 8115,
+        //    House.House_26_2 => 8019,
+        //    _ => throw new ArgumentException("Недопустимый аккаунт")
         //};
 
         //public static House GetHouse(string accountId)
@@ -62,31 +107,5 @@ namespace Models
         //    }
         //    return numRow;
         //}
-
-        public static int GetNumFlats(int i)
-        {
-            return i == 3 ? 97 : 96;
-        }
-
-        //public static int GetNumFlats(House house) 
-        //{
-        //    return house == House.House_24_2 ? 97 : 96;
-        //}
-
-        public static int GetNumFlats(string house)
-        {
-            return house == "24/2" ? 97 : 96;
-        }
-
-        //private static int GetHouseStart(House house) => house switch
-        //{
-        //    House.House_20_1 => 7637,
-        //    House.House_20_2 => 8210,
-        //    House.House_22_2 => 7923,
-        //    House.House_24_2 => 7827,
-        //    House.House_26_1 => 8115,
-        //    House.House_26_2 => 8019,
-        //    _ => throw new ArgumentException("Недопустимый аккаунт")
-        //};
     }
 }
