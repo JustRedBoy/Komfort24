@@ -1,12 +1,11 @@
 ﻿using GoogleLib;
 using Tools;
-using Microsoft.Office.Interop.Word;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using Range = Microsoft.Office.Interop.Word.Range;
 using WinTasks = System.Threading.Tasks;
+using Desktop.Tools;
 
 namespace Desktop.Commands
 {
@@ -144,18 +143,13 @@ namespace Desktop.Commands
             IList<IList<object>> info = googleSheets.GetHouseInfo(house);
             IList<object> rates = googleSheets.GetRates(house);
 
-            var wordApp = new Application
-            {
-                Visible = false
-            };
+            Word word = new Word();
 
             string folderPath = Environment.CurrentDirectory + $"\\Листовки за {Date.GetNamePrevMonth()}";
             string filePath = folderPath + $"\\{house}.docx";
             if (startNum == 0)
             {
-                Document docTemplate = wordApp.Documents.Open(Environment.CurrentDirectory + $"\\Resources\\FlyerTemplate.docx", ReadOnly: true);
-                docTemplate.SaveAs(filePath);
-                docTemplate.Close();
+                word.CopyDocument(Environment.CurrentDirectory + $"\\Resources\\FlyerTemplate.docx", filePath);
             }
 
             string logFilePath = folderPath + $"\\{house}.txt";
@@ -164,7 +158,7 @@ namespace Desktop.Commands
                 File.Delete(logFilePath);
             }
 
-            Document wordDoc = wordApp.Documents.Open(filePath);
+            var wordDoc = word.OpenDocument(filePath);
 
             int countNum = house == "24_2" ? 97 : 96;
             int generatedInHouse = 0;
@@ -180,41 +174,11 @@ namespace Desktop.Commands
                     {
                         return i;
                     }
-                    Paste(wordApp, wordDoc);
-                    WordReplace(wordDoc, "{NM}", info[i][2]);
-                    WordReplace(wordDoc, "{AD}", info[i][1]);
-                    WordReplace(wordDoc, "{MT}", rates[6]);
-                    WordReplace(wordDoc, "{FA}", $"ул. Пишоновская, {house.Replace('_', '/')} кв. {info[i][0]}");
-                    WordReplace(wordDoc, "{MS}", rates[7]);
-                    WordReplace(wordDoc, "{ME}", rates[8]);
-                    WordReplace(wordDoc, "{HSS}", Math.Round(GetNumberValue(info[i][3]) - GetNumberValue(info[i][4]), 2)); // debet - credit
-                    WordReplace(wordDoc, "{CHV}", string.IsNullOrEmpty(info[i][6].ToString()) ? "-" : GetNumberValue(info[i][7]).ToString()); // - or value
-                    WordReplace(wordDoc, "{PHV}", string.IsNullOrEmpty(info[i][6].ToString()) ? "-" : GetNumberValue(info[i][8]).ToString()); // - or value
-                    WordReplace(wordDoc, "{HV}", string.IsNullOrEmpty(info[i][6].ToString()) ? "-" : GetNumberValue(info[i][9]).ToString()); // - or value
-                    WordReplace(wordDoc, "{HR}", string.IsNullOrEmpty(info[i][6].ToString()) ? rates[1] : rates[2]); // central or custom
-                    WordReplace(wordDoc, "{FH}", Math.Round(GetNumberValue(info[i][10]) - GetNumberValue(info[i][11]), 2)); // forHeating - privileges
-                    WordReplace(wordDoc, "{HP}", Math.Round(GetNumberValue(info[i][13]) + GetNumberValue(info[i][14]), 2)); // cashbox + bank
-                    WordReplace(wordDoc, "{HSE}", Math.Round(GetNumberValue(info[i][15]) - GetNumberValue(info[i][16]), 2)); // debet - credit
-                    WordReplace(wordDoc, "{WRSS}", Math.Round(GetNumberValue(info[i][18]) - GetNumberValue(info[i][19]), 2)); // debet - credit
-                    WordReplace(wordDoc, "{WRR}", i < 6 ? rates[4] : rates[3]); // special or general
-                    WordReplace(wordDoc, "{FWR}", Math.Round(GetNumberValue(info[i][21]) - GetNumberValue(info[i][27]), 2)); // forWer - privileges
-                    WordReplace(wordDoc, "{WRP}", Math.Round(GetNumberValue(info[i][29]) + GetNumberValue(info[i][30]) - GetNumberValue(info[i][25]), 2)); // cashbox + bank - forWater
-                    WordReplace(wordDoc, "{WRSE}", Math.Round(GetNumberValue(info[i][31]) - GetNumberValue(info[i][32]), 2)); // debet - credit
-                    WordReplace(wordDoc, "{CWV}", GetNumberValue(info[i][22])); // current water value
-                    WordReplace(wordDoc, "{PWV}", GetNumberValue(info[i][23])); // prev water value
-                    WordReplace(wordDoc, "{WV}", GetNumberValue(info[i][24]));  // water value
-                    WordReplace(wordDoc, "{WTR}", rates[0]); // water rate
-                    WordReplace(wordDoc, "{FWT}", GetNumberValue(info[i][25])); // for water
-                    WordReplace(wordDoc, "{WTP}", GetNumberValue(info[i][25])); // water payment
-                    WordReplace(wordDoc, "{GSS}", "-");
-                    WordReplace(wordDoc, "{GR}", "-");
-                    WordReplace(wordDoc, "{FG}", "-");
-                    WordReplace(wordDoc, "{GP}", "-");
-                    WordReplace(wordDoc, "{GSE}", "-");
+                    word.FormationFlayer(wordDoc, info[i], rates, house);
                     generatedInHouse++;
                     Generated++;
                 }
-                return countNum;
+                return generatedInHouse;
             }
             catch (Exception)
             {
@@ -224,44 +188,10 @@ namespace Desktop.Commands
             }
             finally
             {
-                wordDoc.Save();
-                wordDoc.Close();
-                wordApp.Quit();
+                word.Save(wordDoc);
+                word.CloseDocument(wordDoc);
+                word.Quit();
             }
-        }
-
-        /// <summary>
-        /// Paste table to word document
-        /// </summary>
-        /// <param name="app">Word application</param>
-        /// <param name="doc">Word document</param>
-        private static void Paste(Application app, Document doc)
-        {
-            Range rng = doc.Content;
-            rng.SetRange(rng.Start, rng.Start);
-            rng.Select();
-            app.Selection.Paste();
-        }
-
-        /// <summary>
-        /// Replace template string
-        /// </summary>
-        /// <param name="doc">Word document</param>
-        /// <param name="replace">Template string</param>
-        /// <param name="replaceWith">Text to replace</param>
-        private static void WordReplace(Document doc, string replace, object replaceWith)
-        {
-            doc.Content.Find.Execute(FindText: replace, ReplaceWith: replaceWith);
-        }
-
-        /// <summary>
-        /// Convert object to double
-        /// </summary>
-        /// <param name="obj">Convertible object</param>
-        /// <returns></returns>
-        private static double GetNumberValue(object obj)
-        {
-            return string.IsNullOrEmpty(obj.ToString()) ? 0.0 : double.Parse(obj.ToString());
         }
 
         #endregion

@@ -6,7 +6,6 @@
         xmlns:local="clr-namespace:Desktop.Views" 
         xmlns:converters="clr-namespace:Desktop.Converters" 
         mc:Ignorable="d"
-        ResizeMode="NoResize"
         Closing="Window_Closing"
         WindowStartupLocation="CenterScreen"
         Title="Komfort" 
