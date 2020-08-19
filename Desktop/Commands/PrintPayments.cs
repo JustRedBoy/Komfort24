@@ -20,8 +20,8 @@ namespace Desktop.Commands
             try
             {
                 word.FormationPaymentsDocument(document, payments);
-                word.SaveAs(document, Environment.CurrentDirectory + "\\PrintPayments.docx");
-                word.PrintOut(document);
+                word.SaveDocumentAs(document, Environment.CurrentDirectory + "\\PrintPayments.docx");
+                word.PrintDocument(document);
             }
             finally
             {

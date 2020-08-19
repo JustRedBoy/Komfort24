@@ -37,12 +37,12 @@ namespace Desktop.Tools
             return Application.Documents.Open(path, ReadOnly: isReadonly);
         }
 
-        public void SaveAs(Document doc, string path)
+        public void SaveDocumentAs(Document doc, string path)
         {
             doc.SaveAs(path);
         }
 
-        public void Save(Document doc)
+        public void SaveDocument(Document doc)
         {
             doc.Save();
         }
@@ -54,7 +54,7 @@ namespace Desktop.Tools
             doc.Close();
         }
 
-        public void PrintOut(Document doc)
+        public void PrintDocument(Document doc)
         {
             doc.PrintOut();
         }
@@ -106,7 +106,7 @@ namespace Desktop.Tools
             WordReplace(doc, "{NM}", info[2]);
             WordReplace(doc, "{AD}", info[1]);
             WordReplace(doc, "{MT}", rates[6]);
-            WordReplace(doc, "{FA}", $"ул. Пишоновская, {house.Replace('_', '/')} кв. {info[0]}");
+            WordReplace(doc, "{FA}", $"ул. Пишоновская, {house} кв. {info[0]}");
             WordReplace(doc, "{MS}", Date.GetShortNumMonth(Number.GetInt(rates[7])));
             WordReplace(doc, "{ME}", Date.GetShortNumMonth(Number.GetInt(rates[8])));
             WordReplace(doc, "{HSS}", Math.Round(Number.GetDouble(info[3]) - Number.GetDouble(info[4]), 2)); // debet - credit
@@ -118,7 +118,8 @@ namespace Desktop.Tools
             WordReplace(doc, "{HP}", Math.Round(Number.GetDouble(info[13]) + Number.GetDouble(info[14]), 2)); // cashbox + bank
             WordReplace(doc, "{HSE}", Math.Round(Number.GetDouble(info[15]) - Number.GetDouble(info[16]), 2)); // debet - credit
             WordReplace(doc, "{WRSS}", Math.Round(Number.GetDouble(info[18]) - Number.GetDouble(info[19]), 2)); // debet - credit
-            WordReplace(doc, "{WRR}", Number.GetInt(info[0]) < 7 ? rates[4] : rates[3]); // special or general
+            string flatNumber = info[0].ToString();
+            WordReplace(doc, "{WRR}", Number.GetInt(flatNumber.Contains('/') ? flatNumber[0..^2] : flatNumber) < 7 ? rates[4] : rates[3]); // special or general
             WordReplace(doc, "{FWR}", Math.Round(Number.GetDouble(info[21]) - Number.GetDouble(info[27]), 2)); // forWer - privileges
             WordReplace(doc, "{WRP}", Math.Round(Number.GetDouble(info[29]) + Number.GetDouble(info[30]) - Number.GetDouble(info[25]), 2)); // cashbox + bank - forWater
             WordReplace(doc, "{WRSE}", Math.Round(Number.GetDouble(info[31]) - Number.GetDouble(info[32]), 2)); // debet - credit

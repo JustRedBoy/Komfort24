@@ -80,7 +80,7 @@ namespace Desktop.ViewModels
                           }
                           catch (Exception e)
                           {
-                              GenerationCompleted(e.Message);
+                              GenerationCompleted("Произошла ошибка, повторите операцию! " + e.Message);
                           }
                           finally
                           {

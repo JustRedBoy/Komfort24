@@ -75,12 +75,12 @@ namespace Desktop.Commands
         private static async Task AddNewPayments(GoogleSheets sheets)
         {
             IList<IList<object>> payments = new List<IList<object>>();
-            for (int i = 0; i < Houses.NumberHouses; i++)
+            for (int i = 0; i < Houses.Count; i++)
             {
                 UpdateProgress?.Invoke(i + 3, $"Формирование платежей для дома {Houses.GetHouseInfo(i).fullHouseNumber} ...");
                 var info = await sheets.ReadInfoAsync(Sheets.ServiceSpreadSheetId,
                     $"{Houses.GetHouseInfo(i).fullHouseNumber}!A1:AH97");
-                int countNum = Houses.GetHouseInfo(i).fullHouseNumber == "24/2" ? 97 : 96;
+                int countNum = Houses.GetNumFlats(i);
                 for (int j = 0; j < countNum; j++)
                 {
                     double heatingPayment = Number.GetDouble(info[j][13]) + Number.GetDouble(info[j][14]) + Number.GetDouble(info[j][11]);
@@ -126,7 +126,7 @@ namespace Desktop.Commands
             var month = new List<IList<object>> { new List<object>() };
             month[0].Add(Date.GetNameCurMonth());
 
-            for (int i = 0; i < Houses.NumberHouses; i++)
+            for (int i = 0; i < Houses.Count; i++)
             {
                 UpdateProgress?.Invoke(i + 9, $"Переход на новый месяц дома {Houses.GetHouseInfo(i).fullHouseNumber} ...");
                 string houseNum = Houses.GetHouseInfo(i).fullHouseNumber;

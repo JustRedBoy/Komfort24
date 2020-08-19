@@ -48,44 +48,27 @@ namespace GoogleLib
 
         public async Task<IList<IList<object>>> GetHouseInfoAsync(string houseNumber)
         {
-            return await ReadInfoAsync(Sheets.ServiceSpreadSheetId, 
-                $"{houseNumber.Replace('_', '/')}!A1:AH97");
+            return await ReadInfoAsync(Sheets.ServiceSpreadSheetId, $"{houseNumber}!A1:AH97");
         }
 
         public IList<IList<object>> GetHouseInfo(string houseNumber)
         {
-            lock (this)
-            {
-                return GetHouseInfoAsync(houseNumber).Result;
-            }
+            return GetHouseInfoAsync(houseNumber).Result;
         }
 
         public async Task<IList<object>> GetRatesAsync(string houseNumber)
         {
             var response = await ReadInfoAsync(Sheets.ServiceSpreadSheetId, $"Rates!B2:H7");
-            IList<object> rates = null;
-            switch (houseNumber)
+            IList<object> rates = houseNumber switch
             {
-                case "20_1":
-                    rates = response[0];
-                    break;
-                case "20_2":
-                    rates = response[1];
-                    break;
-                case "22_2":
-                    rates = response[2];
-                    break;
-                case "24_2":
-                    rates = response[3];
-                    break;
-                case "26_1":
-                    rates = response[4];
-                    break;
-                case "26_2":
-                    rates = response[5];
-                    break;
-            }
-
+                "20/1" => response[0],
+                "20/2" => response[1],
+                "22/2" => response[2],
+                "24/2" => response[3],
+                "26/1" => response[4],
+                "26/2" => response[5],
+                _ => throw new ArgumentException("Недопустимый номер дома"),
+            };
             string month = rates[6].ToString().ToLower();
             rates[6] = month;
             int numMonth = Date.GetNumMonth(month);
@@ -97,10 +80,7 @@ namespace GoogleLib
 
         public IList<object> GetRates(string houseNumber)
         {
-            lock (this)
-            {
-                return GetRatesAsync(houseNumber).Result;
-            }
+            return GetRatesAsync(houseNumber).Result;
         }
 
         public async Task<IList<IList<object>>> GetPaymentsAsync()

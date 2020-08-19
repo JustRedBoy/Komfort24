@@ -11,13 +11,17 @@ namespace GoogleLib
     public static class GoogleServices
     {
         private static readonly string AppName = "komfort24";
+        private static readonly object locker = new object();
         public static SheetsService GetSheetsService()
         {
-            return new SheetsService(new BaseClientService.Initializer()
+            lock (locker)
             {
-                HttpClientInitializer = GetUserCredential(SheetsService.Scope.Spreadsheets),
-                ApplicationName = AppName,
-            });
+                return new SheetsService(new BaseClientService.Initializer()
+                {
+                    HttpClientInitializer = GetUserCredential(SheetsService.Scope.Spreadsheets),
+                    ApplicationName = AppName,
+                });
+            }
         }
 
         public static SheetsService GetSheetsServiceWithoutLogin()
@@ -33,11 +37,14 @@ namespace GoogleLib
 
         public static DriveService GetDriveService()
         {
-            return new DriveService(new BaseClientService.Initializer()
+            lock (locker)
             {
-                HttpClientInitializer = GetUserCredential(DriveService.Scope.Drive, SheetsService.Scope.Spreadsheets),
-                ApplicationName = AppName,
-            });
+                return new DriveService(new BaseClientService.Initializer()
+                {
+                    HttpClientInitializer = GetUserCredential(DriveService.Scope.Drive, SheetsService.Scope.Spreadsheets),
+                    ApplicationName = AppName,
+                });
+            }
         }
 
         private static UserCredential GetUserCredential(params string[] scopes)

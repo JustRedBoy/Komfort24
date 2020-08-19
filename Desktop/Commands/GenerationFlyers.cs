@@ -4,8 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using WinTasks = System.Threading.Tasks;
+using System.Threading.Tasks;
 using Desktop.Tools;
+using Models;
 
 namespace Desktop.Commands
 {
@@ -46,7 +47,7 @@ namespace Desktop.Commands
         /// <summary>
         /// Starting process of generating flyers
         /// </summary>
-        public static async WinTasks.Task<bool> StartGenerationAsync()
+        public static async Task<bool> StartGenerationAsync()
         {
             _cts = new CancellationTokenSource();
             Processing = true;
@@ -54,34 +55,30 @@ namespace Desktop.Commands
 
             string folderPath = Environment.CurrentDirectory + $"\\Листовки за {Date.GetNamePrevMonth()}";
             Directory.CreateDirectory(folderPath);
-
             try
             {
                 //start generation in 6 tasks
-                WinTasks.Task<int>[] tasks = new WinTasks.Task<int>[6];
+                Task<int>[] tasks = new Task<int>[6];
                 for (int i = 0; i < 6; i++) 
                 {
                     int num = i;
-                    tasks[i] = WinTasks.Task.Run(() => Start(GetHouse(num), 0, _cts.Token));
+                    tasks[i] = Task.Run(() => Start(Houses.GetHouseInfo(num).fullHouseNumber, 0, _cts.Token));
                 }
-                await WinTasks.Task.WhenAll(tasks);
+                await Task.WhenAll(tasks);
 
                 //extra generation, if we had errors
                 if (!_cts.IsCancellationRequested)
                 {
-                    for (int i = 0; i < 6; i++)
+                    for (int i = 0; i < Houses.Count; i++)
                     {
-                        string filePath = folderPath + $"\\{GetHouse(i)}.txt";
-                        if (File.Exists(filePath))
+                        int generatedCount = tasks[i].Result;
+                        if (generatedCount != Houses.GetNumFlats(i))
                         {
-                            string num;
-                            using (StreamReader file = new StreamReader(filePath))
+                            generatedCount = await Task.Run(() => Start(Houses.GetHouseInfo(i).fullHouseNumber, generatedCount, _cts.Token));
+                            if (generatedCount != Houses.GetNumFlats(i))
                             {
-                                num = file.ReadLine();
+                                throw new Exception("Генерация завершилась с ошибкой после 2 попыток, повторите операцию");
                             }
-                            File.Delete(filePath);
-                            await WinTasks.Task.Run(() => Start(GetHouse(i), int.Parse(num), _cts.Token));
-                            i--; // check errors in extra generation
                         }
                     }
                     return true;
@@ -93,7 +90,7 @@ namespace Desktop.Commands
             }
             catch (Exception e)
             {
-                throw e.InnerException;
+                throw e;
             }
             finally
             {
@@ -116,22 +113,6 @@ namespace Desktop.Commands
         }
 
         /// <summary>
-        /// Get house number
-        /// </summary>
-        /// <param name="number">Value from 0 to 5</param>
-        /// <returns>House number</returns>
-        private static string GetHouse(int number) => number switch
-        {
-            0 => "20_1",
-            1 => "24_2",
-            2 => "22_2",
-            3 => "26_1",
-            4 => "26_2",
-            5 => "20_2",
-            _ => throw new ArgumentException("Некорректный номер дома")
-        };
-
-        /// <summary>
         /// Generation flyers of house
         /// </summary>
         /// <param name="house">House number</param>
@@ -140,56 +121,53 @@ namespace Desktop.Commands
         private static int Start(string house, int startNum, CancellationToken token = default)
         {
             GoogleSheets googleSheets = new GoogleSheets();
-            IList<IList<object>> info = googleSheets.GetHouseInfo(house);
-            IList<object> rates = googleSheets.GetRates(house);
+            IList<IList<object>> info;
+            IList<object> rates;
+            try
+            {
+                info = googleSheets.GetHouseInfo(house);
+                rates = googleSheets.GetRates(house);
+            }
+            catch (Exception e)
+            {
+                throw e.InnerException;
+            }
 
             Word word = new Word();
-
             string folderPath = Environment.CurrentDirectory + $"\\Листовки за {Date.GetNamePrevMonth()}";
-            string filePath = folderPath + $"\\{house}.docx";
+            string filePath = folderPath + $"\\{house.Replace('/', '_')}.docx";
             if (startNum == 0)
             {
                 word.CopyDocument(Environment.CurrentDirectory + $"\\Resources\\FlyerTemplate.docx", filePath);
             }
+            var doc = word.OpenDocument(filePath);
 
-            string logFilePath = folderPath + $"\\{house}.txt";
-            if (File.Exists(logFilePath))
-            {
-                File.Delete(logFilePath);
-            }
-
-            var wordDoc = word.OpenDocument(filePath);
-
-            int countNum = house == "24_2" ? 97 : 96;
-            int generatedInHouse = 0;
+            int generatedInHouse = startNum;
             if (startNum == 0)
             {
-                wordDoc.Tables[1].Range.Cut();
+                doc.Tables[1].Range.Cut();
             }
             try
             {
-                for (int i = startNum; i < countNum; i++)
+                for (; generatedInHouse < Houses.GetNumFlats(house); generatedInHouse++)
                 {
                     if (token.IsCancellationRequested)
                     {
-                        return i;
+                        return generatedInHouse;
                     }
-                    word.FormationFlayer(wordDoc, info[i], rates, house);
-                    generatedInHouse++;
+                    word.FormationFlayer(doc, info[generatedInHouse], rates, house);
                     Generated++;
                 }
                 return generatedInHouse;
             }
             catch (Exception)
             {
-                using var swError = new StreamWriter(folderPath + $"\\{house}.txt", false);
-                swError.WriteLine(generatedInHouse);
                 return generatedInHouse;
             }
             finally
             {
-                word.Save(wordDoc);
-                word.CloseDocument(wordDoc);
+                word.SaveDocument(doc);
+                word.CloseDocument(doc);
                 word.Quit();
             }
         }
