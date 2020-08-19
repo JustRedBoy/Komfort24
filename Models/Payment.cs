@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Tools;
 
 namespace Models
 {
@@ -17,17 +18,12 @@ namespace Models
         {
             AccountId = info[0].ToString();
             FlatOwner = info[1].ToString();
-            ForWer = GetNumberValue(info[2]);
-            ForWater = GetNumberValue(info[3]);
-            ForHeating = GetNumberValue(info[4]);
-            Total = GetNumberValue(info[5]);
+            ForWer = Number.GetDouble(info[2]);
+            ForWater = Number.GetDouble(info[3]);
+            ForHeating = Number.GetDouble(info[4]);
+            Total = Number.GetDouble(info[5]);
             Month = info[6].ToString();
             Year = int.Parse(info[7].ToString());
-        }
-
-        private static double GetNumberValue(object obj)
-        {
-            return string.IsNullOrEmpty(obj.ToString()) ? 0.0 : double.Parse(obj.ToString());
         }
     }
 }

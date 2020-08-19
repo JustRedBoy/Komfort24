@@ -1,5 +1,6 @@
 ﻿using Microsoft.Office.Interop.Word;
 using Models;
+using Tools;
 using System;
 using System.Collections.Generic;
 
@@ -106,44 +107,32 @@ namespace Desktop.Tools
             WordReplace(doc, "{AD}", info[1]);
             WordReplace(doc, "{MT}", rates[6]);
             WordReplace(doc, "{FA}", $"ул. Пишоновская, {house.Replace('_', '/')} кв. {info[0]}");
-            int ms = (int)GetNumberValue(rates[7]);
-            int me = (int)GetNumberValue(rates[8]);
-            WordReplace(doc, "{MS}", ms > 9 ? ms.ToString() : "0" + ms);
-            WordReplace(doc, "{ME}", me > 9 ? me.ToString() : "0" + me);
-            WordReplace(doc, "{HSS}", Math.Round(GetNumberValue(info[3]) - GetNumberValue(info[4]), 2)); // debet - credit
-            WordReplace(doc, "{CHV}", string.IsNullOrEmpty(info[6].ToString()) ? "-" : GetNumberValue(info[7]).ToString()); // - or value
-            WordReplace(doc, "{PHV}", string.IsNullOrEmpty(info[6].ToString()) ? "-" : GetNumberValue(info[8]).ToString()); // - or value
-            WordReplace(doc, "{HV}", string.IsNullOrEmpty(info[6].ToString()) ? "-" : GetNumberValue(info[9]).ToString()); // - or value
+            WordReplace(doc, "{MS}", Date.GetShortNumMonth(Number.GetInt(rates[7])));
+            WordReplace(doc, "{ME}", Date.GetShortNumMonth(Number.GetInt(rates[8])));
+            WordReplace(doc, "{HSS}", Math.Round(Number.GetDouble(info[3]) - Number.GetDouble(info[4]), 2)); // debet - credit
+            WordReplace(doc, "{CHV}", string.IsNullOrEmpty(info[6].ToString()) ? "-" : Number.GetDouble(info[7]).ToString()); // - or value
+            WordReplace(doc, "{PHV}", string.IsNullOrEmpty(info[6].ToString()) ? "-" : Number.GetDouble(info[8]).ToString()); // - or value
+            WordReplace(doc, "{HV}", string.IsNullOrEmpty(info[6].ToString()) ? "-" : Number.GetDouble(info[9]).ToString()); // - or value
             WordReplace(doc, "{HR}", string.IsNullOrEmpty(info[6].ToString()) ? rates[1] : rates[2]); // central or custom
-            WordReplace(doc, "{FH}", Math.Round(GetNumberValue(info[10]) - GetNumberValue(info[11]), 2)); // forHeating - privileges
-            WordReplace(doc, "{HP}", Math.Round(GetNumberValue(info[13]) + GetNumberValue(info[14]), 2)); // cashbox + bank
-            WordReplace(doc, "{HSE}", Math.Round(GetNumberValue(info[15]) - GetNumberValue(info[16]), 2)); // debet - credit
-            WordReplace(doc, "{WRSS}", Math.Round(GetNumberValue(info[18]) - GetNumberValue(info[19]), 2)); // debet - credit
-            WordReplace(doc, "{WRR}", (int)GetNumberValue(info[0]) < 7 ? rates[4] : rates[3]); // special or general
-            WordReplace(doc, "{FWR}", Math.Round(GetNumberValue(info[21]) - GetNumberValue(info[27]), 2)); // forWer - privileges
-            WordReplace(doc, "{WRP}", Math.Round(GetNumberValue(info[29]) + GetNumberValue(info[30]) - GetNumberValue(info[25]), 2)); // cashbox + bank - forWater
-            WordReplace(doc, "{WRSE}", Math.Round(GetNumberValue(info[31]) - GetNumberValue(info[32]), 2)); // debet - credit
-            WordReplace(doc, "{CWV}", GetNumberValue(info[22])); // current water value
-            WordReplace(doc, "{PWV}", GetNumberValue(info[23])); // prev water value
-            WordReplace(doc, "{WV}", GetNumberValue(info[24]));  // water value
+            WordReplace(doc, "{FH}", Math.Round(Number.GetDouble(info[10]) - Number.GetDouble(info[11]), 2)); // forHeating - privileges
+            WordReplace(doc, "{HP}", Math.Round(Number.GetDouble(info[13]) + Number.GetDouble(info[14]), 2)); // cashbox + bank
+            WordReplace(doc, "{HSE}", Math.Round(Number.GetDouble(info[15]) - Number.GetDouble(info[16]), 2)); // debet - credit
+            WordReplace(doc, "{WRSS}", Math.Round(Number.GetDouble(info[18]) - Number.GetDouble(info[19]), 2)); // debet - credit
+            WordReplace(doc, "{WRR}", Number.GetInt(info[0]) < 7 ? rates[4] : rates[3]); // special or general
+            WordReplace(doc, "{FWR}", Math.Round(Number.GetDouble(info[21]) - Number.GetDouble(info[27]), 2)); // forWer - privileges
+            WordReplace(doc, "{WRP}", Math.Round(Number.GetDouble(info[29]) + Number.GetDouble(info[30]) - Number.GetDouble(info[25]), 2)); // cashbox + bank - forWater
+            WordReplace(doc, "{WRSE}", Math.Round(Number.GetDouble(info[31]) - Number.GetDouble(info[32]), 2)); // debet - credit
+            WordReplace(doc, "{CWV}", Number.GetDouble(info[22])); // current water value
+            WordReplace(doc, "{PWV}", Number.GetDouble(info[23])); // prev water value
+            WordReplace(doc, "{WV}", Number.GetDouble(info[24]));  // water value
             WordReplace(doc, "{WTR}", rates[0]); // water rate
-            WordReplace(doc, "{FWT}", GetNumberValue(info[25])); // for water
-            WordReplace(doc, "{WTP}", GetNumberValue(info[25])); // water payment
+            WordReplace(doc, "{FWT}", Number.GetDouble(info[25])); // for water
+            WordReplace(doc, "{WTP}", Number.GetDouble(info[25])); // water payment
             WordReplace(doc, "{GSS}", "-");
             WordReplace(doc, "{GR}", "-");
             WordReplace(doc, "{FG}", "-");
             WordReplace(doc, "{GP}", "-");
             WordReplace(doc, "{GSE}", "-");
-        }
-
-        /// <summary>
-        /// Convert object to double
-        /// </summary>
-        /// <param name="obj">Convertible object</param>
-        /// <returns>Double value</returns>
-        private static double GetNumberValue(object obj)
-        {
-            return string.IsNullOrEmpty(obj.ToString()) ? 0.0 : double.Parse(obj.ToString());
         }
 
         private void CreateTemplatePaymentsTable(Document doc)

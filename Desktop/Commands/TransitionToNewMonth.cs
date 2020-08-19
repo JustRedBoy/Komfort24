@@ -83,11 +83,11 @@ namespace Desktop.Commands
                 int countNum = Houses.GetHouseInfo(i).fullHouseNumber == "24/2" ? 97 : 96;
                 for (int j = 0; j < countNum; j++)
                 {
-                    double heatingPayment = GetNumber(info[j][13]) + GetNumber(info[j][14]) + GetNumber(info[j][11]);
-                    double werPayment = GetNumber(info[j][29]) + GetNumber(info[j][30]) + GetNumber(info[j][27]);
+                    double heatingPayment = Number.GetDouble(info[j][13]) + Number.GetDouble(info[j][14]) + Number.GetDouble(info[j][11]);
+                    double werPayment = Number.GetDouble(info[j][29]) + Number.GetDouble(info[j][30]) + Number.GetDouble(info[j][27]);
                     if (heatingPayment != 0 || werPayment != 0)
                     {
-                        double forWater = GetNumber(info[j][25]);
+                        double forWater = Number.GetDouble(info[j][25]);
                         double forWer = Math.Round(werPayment - forWater, 2); 
                         payments.Add(new List<object>()
                         {
@@ -110,10 +110,10 @@ namespace Desktop.Commands
                 {
                     item[0],
                     item[1],
-                    GetNumber(item[2]),
-                    GetNumber(item[3]),
-                    GetNumber(item[4]),
-                    GetNumber(item[5]),
+                    Number.GetDouble(item[2]),
+                    Number.GetDouble(item[3]),
+                    Number.GetDouble(item[4]),
+                    Number.GetDouble(item[5]),
                     item[6],
                     item[7]
                 });
@@ -139,7 +139,7 @@ namespace Desktop.Commands
 
                 // Dublicate last values
                 var lastValues = await sheets.ReadInfoAsync(Sheets.WerSpreadSheetId, $"{houseNum}!H9:H{8 + numFlats}");
-                await sheets.WriteInfoAsync(GetListDoubles(lastValues), Sheets.WerSpreadSheetId, $"{houseNum}!I9:I{8 + numFlats}");
+                await sheets.WriteInfoAsync(GetListDoubles(lastValues, 3), Sheets.WerSpreadSheetId, $"{houseNum}!I9:I{8 + numFlats}");
 
                 // Clear payments
                 await sheets.WriteInfoAsync(GetEmptyList(numFlats, 2), Sheets.WerSpreadSheetId, $"{houseNum}!O9:P{8 + numFlats}");
@@ -158,7 +158,7 @@ namespace Desktop.Commands
 
                 // Dublicate last values
                 var lastValues2 = await sheets.ReadInfoAsync(Sheets.HeatingSpreadSheetId, $"{houseNum}!H9:H{8 + numFlats}");
-                await sheets.WriteInfoAsync(GetListDoubles(lastValues2), Sheets.HeatingSpreadSheetId, $"{houseNum}!I9:I{8 + numFlats}");
+                await sheets.WriteInfoAsync(GetListDoubles(lastValues2, 3), Sheets.HeatingSpreadSheetId, $"{houseNum}!I9:I{8 + numFlats}");
 
                 // Clear payments
                 await sheets.WriteInfoAsync(GetEmptyList(numFlats, 2), Sheets.HeatingSpreadSheetId, $"{houseNum}!N9:O{8 + numFlats}");
@@ -173,13 +173,13 @@ namespace Desktop.Commands
             await sheets.WriteInfoAsync(month, Sheets.HeatingSpreadSheetId, $"Сводная ведомость!H2");
         }
 
-        private static IList<IList<object>> GetListDoubles(IList<IList<object>> info)
+        private static IList<IList<object>> GetListDoubles(IList<IList<object>> info, int digits = 2)
         {
             for (int i = 0; i < info.Count; i++)
             {
                 for (int j = 0; j < info[i].Count; j++)
                 {
-                    info[i][j] = GetNumber(info[i][j]);
+                    info[i][j] = Number.GetDouble(info[i][j], digits);
                 }
             }
             return info;
@@ -197,12 +197,6 @@ namespace Desktop.Commands
                 }
             }
             return list;
-        }
-
-        private static double GetNumber(object value)
-        {
-            return string.IsNullOrEmpty(value.ToString()) ?
-                0.0 : Math.Round(double.Parse(value.ToString().Replace('.', ',')), 3);
         }
     }
 }
