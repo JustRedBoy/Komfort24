@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 using GoogleLib.Exceptions;
+using Models;
 
 namespace GoogleLib
 {
@@ -68,7 +69,8 @@ namespace GoogleLib
         /// <exception cref="AccessDeniedException">Thrown when had problem with there was an access problem with Google Drive</exception>
         public async Task<IList<IList<object>>> GetHouseInfoAsync(string houseNumber)
         {
-            return await ReadInfoAsync(Sheets.ServiceSpreadSheetId, $"{houseNumber}!A1:AH97");
+            return await ReadInfoAsync(Sheets.ServiceSpreadSheetId, 
+                $"{houseNumber}!A1:AH{Houses.GetNumFlats(houseNumber)}");
         }
 
         /// <summary>

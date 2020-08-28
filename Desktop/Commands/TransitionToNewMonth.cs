@@ -10,10 +10,13 @@ namespace Desktop.Commands
 {
     internal static class TransitionToNewMonth
     {
-        internal delegate void TransitionHandler(int value, string message);
+        internal delegate void TransitionHandler(double value, string message);
         internal static event TransitionHandler UpdateProgress;
 
         internal static bool Processing { get; set; } = false;
+
+        private static int _processIndicator = 0;
+        private static readonly double _interval = 100.0 / (Houses.Count * 2 + 3);
 
         /// <summary>
         /// Starting of the transition to a new month
@@ -24,6 +27,7 @@ namespace Desktop.Commands
             Processing = true;
             GoogleDrive drive = new GoogleDrive();
             GoogleSheets sheets = new GoogleSheets();
+            _processIndicator = 0;
 
             try
             {
@@ -45,19 +49,9 @@ namespace Desktop.Commands
                 Processing = false;
             }
         }
-
-        private static async Task CreateFolderAndCopyFilesAsync(GoogleDrive drive)
-        {
-            UpdateProgress?.Invoke(1, "Создание отдельной папки для файлов ...");
-            string folderId = await drive.CreateFolderAsync(Date.GetPrevDate());
-            UpdateProgress?.Invoke(2, "Копирование файлов в отдельную папку ...");
-            await drive.CopyFileAsync(Sheets.HeatingSpreadSheetId, $"Ведомость О ({Date.GetPrevDate()})", folderId);
-            await drive.CopyFileAsync(Sheets.WerSpreadSheetId, $"Ведомость СД ({Date.GetPrevDate()})", folderId);
-        }
-
         private static async Task<bool> TransitionCheck(GoogleDrive drive)
         {
-            UpdateProgress?.Invoke(0, "Проверка ...");
+            UpdateInfo("Проверка ...");
             IEnumerable<string> files = await drive.GetFilesAsync();
             if (files != null && files.Count() > 0)
             {
@@ -72,15 +66,21 @@ namespace Desktop.Commands
             }
             return true;
         }
-
+        private static async Task CreateFolderAndCopyFilesAsync(GoogleDrive drive)
+        {
+            UpdateInfo("Создание отдельной папки для файлов ...");
+            string folderId = await drive.CreateFolderAsync(Date.GetPrevDate());
+            UpdateInfo("Копирование файлов в отдельную папку ...");
+            await drive.CopyFileAsync(Sheets.HeatingSpreadSheetId, $"Ведомость О ({Date.GetPrevDate()})", folderId);
+            await drive.CopyFileAsync(Sheets.WerSpreadSheetId, $"Ведомость СД ({Date.GetPrevDate()})", folderId);
+        }
         private static async Task AddNewPayments(GoogleSheets sheets)
         {
             IList<IList<object>> payments = new List<IList<object>>();
             for (int i = 0; i < Houses.Count; i++)
             {
-                UpdateProgress?.Invoke(i + 3, $"Формирование платежей для дома {Houses.GetHouseInfo(i).fullHouseNumber} ...");
-                var info = await sheets.ReadInfoAsync(Sheets.ServiceSpreadSheetId,
-                    $"{Houses.GetHouseInfo(i).fullHouseNumber}!A1:AH97");
+                UpdateInfo($"Формирование платежей для дома {Houses.GetHouseInfo(i).fullHouseNumber} ...");
+                var info = await sheets.GetHouseInfoAsync(Houses.GetHouseInfo(i).fullHouseNumber);
                 for (int j = 0; j < Houses.GetNumFlats(i); j++)
                 {
                     double heatingPayment = Number.GetDouble(info[j][13]) + Number.GetDouble(info[j][14]) + Number.GetDouble(info[j][11]);
@@ -88,7 +88,7 @@ namespace Desktop.Commands
                     if (heatingPayment != 0 || werPayment != 0)
                     {
                         double forWater = Number.GetDouble(info[j][25]);
-                        double forWer = Math.Round(werPayment - forWater, 2); 
+                        double forWer = Math.Round(werPayment - forWater, 2);
                         payments.Add(new List<object>()
                         {
                             info[j][1],
@@ -120,7 +120,6 @@ namespace Desktop.Commands
             }
             await sheets.WriteInfoAsync(payments, Sheets.PaymentsSpreadSheetId, $"A2:H{payments.Count + 1}");
         }
-
         private static async Task CorrectFiles(GoogleSheets sheets)
         {
             var month = new List<IList<object>> { new List<object>() };
@@ -128,7 +127,7 @@ namespace Desktop.Commands
 
             for (int i = 0; i < Houses.Count; i++)
             {
-                UpdateProgress?.Invoke(i + 9, $"Переход на новый месяц дома {Houses.GetHouseInfo(i).fullHouseNumber} ...");
+                UpdateInfo($"Переход на новый месяц дома {Houses.GetHouseInfo(i).fullHouseNumber} ...");
                 string houseNum = Houses.GetHouseInfo(i).fullHouseNumber;
                 int numFlats = Houses.GetNumFlats(i);
 
@@ -172,7 +171,6 @@ namespace Desktop.Commands
             await sheets.WriteInfoAsync(month, Sheets.WerSpreadSheetId, $"Сводная ведомость!H2");
             await sheets.WriteInfoAsync(month, Sheets.HeatingSpreadSheetId, $"Сводная ведомость!H2");
         }
-
         private static IList<IList<object>> GetListDoubles(IList<IList<object>> info, int digits = 2)
         {
             for (int i = 0; i < info.Count; i++)
@@ -184,7 +182,6 @@ namespace Desktop.Commands
             }
             return info;
         }
-
         private static IList<IList<object>> GetEmptyList(int rows, int colomns)
         {
             var list = new List<IList<object>>();
@@ -197,6 +194,10 @@ namespace Desktop.Commands
                 }
             }
             return list;
+        }
+        private static void UpdateInfo(string message)
+        {
+            UpdateProgress(++_processIndicator * _interval, message);
         }
     }
 }

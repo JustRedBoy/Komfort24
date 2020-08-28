@@ -167,7 +167,7 @@
                             Margin="5,0,15,0"
                             Width="450"
                             Minimum="0" 
-                            Maximum="{Binding MaxGenerationProgressValue, UpdateSourceTrigger=PropertyChanged}" 
+                            Maximum="100" 
                             Value="{Binding GenerationProgressValue, UpdateSourceTrigger=PropertyChanged}"/>
                         <Button 
                             Margin="5" 
@@ -201,7 +201,7 @@
                             Margin="5,0,15,0"
                             Width="450"
                             Minimum="0" 
-                            Maximum="{Binding MaxTransitionProgressValue, UpdateSourceTrigger=PropertyChanged}" 
+                            Maximum="100" 
                             Value="{Binding TransitionProgressValue, UpdateSourceTrigger=PropertyChanged}"/>
                         <Button 
                             Margin="5" 

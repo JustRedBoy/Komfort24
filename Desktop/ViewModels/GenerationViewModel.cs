@@ -5,29 +5,19 @@ namespace Desktop.ViewModels
 {
     public class GenerationViewModel : ViewModelBase
     {
-        private int _generationProgressValue = 0;
-        private int _maxGenerationProgressValue = 577;
+        private double _generationProgressValue = 0.0;
         private string _generationInfo =
             "* Во время генерации нельзя пользоваться операциями копировать/вставить";
         private bool _isGenerationEnabled = true;
         private string _generationButtonText = "Начать";
 
-        public int GenerationProgressValue
+        public double GenerationProgressValue
         {
             get { return _generationProgressValue; }
             set
             {
                 _generationProgressValue = value;
                 OnPropertyChanged("GenerationProgressValue");
-            }
-        }
-        public int MaxGenerationProgressValue
-        {
-            get { return _maxGenerationProgressValue; }
-            set
-            {
-                _maxGenerationProgressValue = value;
-                OnPropertyChanged("MaxGenerationProgressValue");
             }
         }
         public string GenerationInfo
@@ -100,16 +90,16 @@ namespace Desktop.ViewModels
             }
         }
 
-        private void UpdateProgress(int value)
+        private void UpdateProgress(double value)
         {
-            if (!GenerationFlyers.IsCancelled)
+            if (!GenerationFlyers.Cancelled)
             {
-                if (!IsGenerationEnabled && value == 1)
+                if (!IsGenerationEnabled)
                 {
                     IsGenerationEnabled = true;
                 }
                 GenerationProgressValue = value;
-                GenerationInfo = $"Создание листовок ... {value} / {MaxGenerationProgressValue}";
+                GenerationInfo = $"Создание листовок ... {Math.Round(value, 2)}%";
             }
         }
         private void GenerationCompleted(string message)

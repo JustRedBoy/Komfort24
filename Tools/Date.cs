@@ -37,7 +37,7 @@ namespace Tools
         public static int GetNumMonth(string month) => month switch
         {
             "январь" => 1,
-            "ферваль" => 2,
+            "февраль" => 2,
             "март" => 3,
             "апрель" => 4,
             "май" => 5,
@@ -57,13 +57,13 @@ namespace Tools
         public static string GetNameMonth(int month) => month switch
         {
             1 => "январь",
-            2 => "ферваль",
+            2 => "февраль",
             3 => "март",
             4 => "апрель",
             5 => "май",
             6 => "июнь",
             7 => "июль",
-            8 =>"август",
+            8 => "август",
             9 => "сентябрь",
             10 => "октябрь",
             11 => "ноябрь",

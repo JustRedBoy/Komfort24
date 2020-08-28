@@ -55,6 +55,15 @@ namespace Models
             return house == "24/2" ? 97 : 96;
         }
 
+        /// <summary>
+        /// Get the number of flats in all houses
+        /// </summary>
+        /// <returns>Number of flats in all houses</returns>
+        public static int GetNumAllFlats()
+        {
+            return 96 * 5 + 97;
+        }
+
         //public static int GetNumFlats(House house)
         //{
         //    return house == House.House_24_2 ? 97 : 96;

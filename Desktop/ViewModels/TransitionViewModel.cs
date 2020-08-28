@@ -5,26 +5,16 @@ namespace Desktop.ViewModels
 {
     public class TransitionViewModel : ViewModelBase
     {
-        private int _maxTransitionProgressValue = 14;
-        private int _transitionProgressValue = 0;
+        private double _transitionProgressValue = 0.0;
         private string _transitionInfo = "";
 
-        public int TransitionProgressValue
+        public double TransitionProgressValue
         {
             get { return _transitionProgressValue; }
             set
             {
                 _transitionProgressValue = value;
                 OnPropertyChanged("TransitionProgressValue");
-            }
-        }
-        public int MaxTransitionProgressValue
-        {
-            get { return _maxTransitionProgressValue; }
-            set
-            {
-                _maxTransitionProgressValue = value;
-                OnPropertyChanged("MaxTransitionProgressValue");
             }
         }
         public string TransitionInfo
@@ -54,7 +44,7 @@ namespace Desktop.ViewModels
                       }
                       catch (Exception e)
                       {
-                          TransitionCompleted(e.Message);
+                          TransitionCompleted("Произошла ошибка, повторите операцию! " + e.Message);
                       }
                       finally
                       {
@@ -67,14 +57,14 @@ namespace Desktop.ViewModels
 
         private void TransitionCompleted(string message)
         {
-            TransitionProgressValue = 0;
+            TransitionProgressValue = 0.0;
             TransitionInfo = message;     
             TransitionToNewMonth.UpdateProgress -= UpdateProgress;
         }
-        private void UpdateProgress(int value, string message)
+        private void UpdateProgress(double value, string message)
         {
             TransitionProgressValue = value;
-            TransitionInfo = message;
+            TransitionInfo = message + $" {Math.Round(value, 2)}%";
         }
     }
 }

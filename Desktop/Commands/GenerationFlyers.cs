@@ -12,26 +12,14 @@ namespace Desktop.Commands
 {
     public static class GenerationFlyers
     {
-        internal delegate void GenerationHandler(int value);
+        internal delegate void GenerationHandler(double value);
         internal static event GenerationHandler UpdateProgress;
 
         internal static bool Processing { get; set; } = false;
-        internal static bool IsCancelled { get; set; } = false;
+        internal static bool Cancelled { get; set; } = false;
 
-        private static int _generated = 0;
-        private static int Generated
-        {
-            get { return _generated; }
-            set
-            {
-                _generated = value;
-                if (_generated != 0)
-                {
-                    UpdateProgress?.Invoke(_generated);
-                }
-            }
-        }
-
+        private static int _processIndicator = 0;
+        private static readonly double _interval = 100.0 / Houses.GetNumAllFlats();
         private static CancellationTokenSource _cts;
 
         /// <summary>
@@ -41,15 +29,16 @@ namespace Desktop.Commands
         {
             _cts = new CancellationTokenSource();
             Processing = true;
-            IsCancelled = false;
+            Cancelled = false;
+            _processIndicator = 0;
 
             string folderPath = Environment.CurrentDirectory + $"\\Листовки за {Date.GetNamePrevMonth()}";
             Directory.CreateDirectory(folderPath);
             try
             {
-                //start generation in 6 tasks
-                Task<int>[] tasks = new Task<int>[6];
-                for (int i = 0; i < Houses.Count; i++) 
+                //start generation (every house in task)
+                Task<int>[] tasks = new Task<int>[Houses.Count];
+                for (int i = 0; i < Houses.Count; i++)
                 {
                     int num = i;
                     tasks[i] = Task.Run(() => Start(Houses.GetHouseInfo(num).fullHouseNumber, 0, _cts.Token));
@@ -85,11 +74,9 @@ namespace Desktop.Commands
             finally
             {
                 _cts?.Dispose();
-                Generated = 0;
                 Processing = false;
             }
         }
-
         /// <summary>
         /// Сanceling process of generating flyers
         /// </summary>
@@ -97,11 +84,10 @@ namespace Desktop.Commands
         {
             if (Processing)
             {
-                IsCancelled = true;
+                Cancelled = true;
                 _cts?.Cancel();
             }
         }
-
         private static int Start(string house, int startNum, CancellationToken token = default)
         {
             GoogleSheets googleSheets = new GoogleSheets();
@@ -140,7 +126,7 @@ namespace Desktop.Commands
                         return generatedInHouse;
                     }
                     word.FormationFlayer(doc, info[generatedInHouse], rates, house);
-                    Generated++;
+                    UpdateInfo();
                 }
                 return generatedInHouse;
             }
@@ -154,6 +140,10 @@ namespace Desktop.Commands
                 word.CloseDocument(doc);
                 word.Quit();
             }
+        }
+        private static void UpdateInfo()
+        {
+            UpdateProgress(++_processIndicator * _interval);
         }
     }
 }
