@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
-using Tools;
+﻿using System;
 
 namespace Models
 {
     public class Payment
     {
         public string AccountId { get; set; }
-        public string FlatOwner { get; set; }
+        public string Owner { get; set; }
         public double ForWer { get; set; }
         public double ForWater { get; set; }
         public double ForHeating { get; set; }
@@ -14,16 +13,17 @@ namespace Models
         public string Month { get; set; }
         public int Year { get; set; }
 
-        public Payment(IList<object> info)
+        public Payment(Report report)
         {
-            AccountId = info[0].ToString();
-            FlatOwner = info[1].ToString();
-            ForWer = Number.GetDouble(info[2]);
-            ForWater = Number.GetDouble(info[3]);
-            ForHeating = Number.GetDouble(info[4]);
-            Total = Number.GetDouble(info[5]);
-            Month = info[6].ToString();
-            Year = int.Parse(info[7].ToString());
+            AccountId = report.AccountId;
+            Owner = report.Owner;
+            ForWer = report.WerForMonth;
+            ForWater = report.WaterForMonth;
+            ForHeating = report.HeatingForService;
+            Total = Math.Round(report.WerForMonth + report.WaterForMonth + 
+                report.HeatingForService, 2);
+            Month = report.Month;
+            Year = report.Year;
         }
     }
 }

@@ -6,38 +6,41 @@ using System.Threading.Tasks;
 
 namespace Desktop.Commands
 {
-    internal static class SearchPayments
+    internal static class SearchReports
     {
         internal static bool Processing { get; set; } = false;
+        private static IList<IList<object>> Info { get; set; } = null;
 
         /// <summary>
-        /// Starting the payments search process
+        /// Starting the reports search process
         /// </summary>
-        /// <param name="accountId">Account to search payments</param>
+        /// <param name="accountId">Account to search reports</param>
         /// <returns></returns>
-        internal static async Task<List<Payment>> SearchAsync(string accountId)
+        internal static async Task<List<Report>> SearchAsync(string accountId)
         {
             Processing = true;
             try
             {
-                List<Payment> payments = null;
+                List<Report> reports = null;
                 Regex regex = new Regex(@"(\d{4}$)|(\d{4}/[1|2]$)"); // 4 digits or 4 digits with /1 or /2
                 MatchCollection matches = regex.Matches(accountId);
                 if (matches.Count > 0)
                 {
-                    GoogleSheets googleSheets = new GoogleSheets();
-                    var info = await googleSheets.GetPaymentsAsync();
-
-                    payments = new List<Payment>();
-                    foreach (var item in info)
+                    if (Info == null)
                     {
-                        if (item[0].ToString() == accountId)
+                        GoogleSheets googleSheets = new GoogleSheets();
+                        Info = await googleSheets.GetReportsAsync();
+                    }
+                    reports = new List<Report>();
+                    foreach (var item in Info)
+                    {
+                        if (item[1].ToString() == accountId)
                         {
-                            payments.Add(new Payment(item));
+                            reports.Add(new Report(item));
                         }
                     }
                 }
-                return payments;
+                return reports;
             }
             finally
             {

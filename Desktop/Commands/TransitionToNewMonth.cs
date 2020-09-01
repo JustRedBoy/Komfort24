@@ -1,10 +1,10 @@
 ﻿using GoogleLib;
 using Tools;
 using Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System;
 
 namespace Desktop.Commands
 {
@@ -16,7 +16,7 @@ namespace Desktop.Commands
         internal static bool Processing { get; set; } = false;
 
         private static int _processIndicator = 0;
-        private static readonly double _interval = 100.0 / (Houses.Count * 2 + 3);
+        private static readonly double _interval = 100.0 / (Houses.Count * 2 + 4);
 
         /// <summary>
         /// Starting of the transition to a new month
@@ -34,7 +34,7 @@ namespace Desktop.Commands
                 if (await TransitionCheck(drive))
                 {
                     await CreateFolderAndCopyFilesAsync(drive);
-                    await AddNewPayments(sheets);
+                    await AddNewReports(sheets);
                     await CorrectFiles(sheets);
 
                     return true;
@@ -58,7 +58,7 @@ namespace Desktop.Commands
                 foreach (string name in files)
                 {
                     //if a folder with a special name exists, then the transition has already been
-                    if (name == Date.GetPrevDate())
+                    if (name == Date.GetFullPrevDate())
                     {
                         return false;
                     }
@@ -69,61 +69,43 @@ namespace Desktop.Commands
         private static async Task CreateFolderAndCopyFilesAsync(GoogleDrive drive)
         {
             UpdateInfo("Создание отдельной папки для файлов ...");
-            string folderId = await drive.CreateFolderAsync(Date.GetPrevDate());
+            string folderId = await drive.CreateFolderAsync(Date.GetFullPrevDate());
             UpdateInfo("Копирование файлов в отдельную папку ...");
-            await drive.CopyFileAsync(Sheets.HeatingSpreadSheetId, $"Ведомость О ({Date.GetPrevDate()})", folderId);
-            await drive.CopyFileAsync(Sheets.WerSpreadSheetId, $"Ведомость СД ({Date.GetPrevDate()})", folderId);
+            await drive.CopyFileAsync(Sheets.HeatingSpreadSheetId, $"Ведомость О ({Date.GetFullPrevDate()})", folderId);
+            await drive.CopyFileAsync(Sheets.WerSpreadSheetId, $"Ведомость СД ({Date.GetFullPrevDate()})", folderId);
         }
-        private static async Task AddNewPayments(GoogleSheets sheets)
+        private static async Task AddNewReports(GoogleSheets sheets)
         {
-            IList<IList<object>> payments = new List<IList<object>>();
+            IList<IList<object>> reports = new List<IList<object>>();
             for (int i = 0; i < Houses.Count; i++)
             {
-                UpdateInfo($"Формирование платежей для дома {Houses.GetHouseInfo(i).fullHouseNumber} ...");
-                var info = await sheets.GetHouseInfoAsync(Houses.GetHouseInfo(i).fullHouseNumber);
+                string houseNumber = Houses.GetHouseInfo(i).fullHouseNumber;
+                UpdateInfo($"Формирование отчета для дома {houseNumber} ...");
+                var info = await sheets.GetCurrentReportAsync(houseNumber);
                 for (int j = 0; j < Houses.GetNumFlats(i); j++)
                 {
-                    double heatingPayment = Number.GetDouble(info[j][13]) + Number.GetDouble(info[j][14]) + Number.GetDouble(info[j][11]);
-                    double werPayment = Number.GetDouble(info[j][29]) + Number.GetDouble(info[j][30]) + Number.GetDouble(info[j][27]);
-                    if (heatingPayment != 0 || werPayment != 0)
+                    if(i == 0 && j == 58 && info[j][1].ToString() == "7695")
                     {
-                        double forWater = Number.GetDouble(info[j][25]);
-                        double forWer = Math.Round(werPayment - forWater, 2);
-                        payments.Add(new List<object>()
-                        {
-                            info[j][1],
-                            info[j][2],
-                            forWer,
-                            forWater,
-                            heatingPayment,
-                            forWer + forWater + heatingPayment,
-                            Date.GetNamePrevMonth(),
-                            DateTime.Now.Year
-                        });
+                        continue;
                     }
+                    reports.Add(info[j]);
                 }
             }
-            var oldPayments = await sheets.GetPaymentsAsync();
-            foreach (var item in oldPayments)
+            UpdateInfo($"Добавление отчета ...");
+            var oldReports = await sheets.GetReportsAsync();
+            foreach (var report in oldReports)
             {
-                payments.Add(new List<object>()
-                {
-                    item[0],
-                    item[1],
-                    Number.GetDouble(item[2]),
-                    Number.GetDouble(item[3]),
-                    Number.GetDouble(item[4]),
-                    Number.GetDouble(item[5]),
-                    item[6],
-                    item[7]
-                });
+                reports.Add(report);
             }
-            await sheets.WriteInfoAsync(payments, Sheets.PaymentsSpreadSheetId, $"A2:H{payments.Count + 1}");
+            await sheets.WriteInfoAsync(reports, Sheets.ReportsSpreadSheetId, $"A1:AH{reports.Count}");
         }
         private static async Task CorrectFiles(GoogleSheets sheets)
         {
             var month = new List<IList<object>> { new List<object>() };
             month[0].Add(Date.GetNameCurMonth());
+
+            var year = new List<IList<object>> { new List<object>() };
+            year[0].Add(DateTime.Now.Year);
 
             for (int i = 0; i < Houses.Count; i++)
             {
@@ -170,6 +152,9 @@ namespace Desktop.Commands
             }
             await sheets.WriteInfoAsync(month, Sheets.WerSpreadSheetId, $"Сводная ведомость!H2");
             await sheets.WriteInfoAsync(month, Sheets.HeatingSpreadSheetId, $"Сводная ведомость!H2");
+
+            await sheets.WriteInfoAsync(year, Sheets.WerSpreadSheetId, $"Сводная ведомость!I2");
+            await sheets.WriteInfoAsync(year, Sheets.HeatingSpreadSheetId, $"Сводная ведомость!I2");
         }
         private static IList<IList<object>> GetListDoubles(IList<IList<object>> info, int digits = 2)
         {
@@ -177,7 +162,7 @@ namespace Desktop.Commands
             {
                 for (int j = 0; j < info[i].Count; j++)
                 {
-                    info[i][j] = Number.GetDouble(info[i][j], digits);
+                    info[i][j] = info[i][j].ToDouble(digits);
                 }
             }
             return info;

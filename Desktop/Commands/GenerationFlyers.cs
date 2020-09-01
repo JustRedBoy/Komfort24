@@ -95,7 +95,7 @@ namespace Desktop.Commands
             IList<object> rates;
             try
             {
-                info = googleSheets.GetHouseInfo(house);
+                info = googleSheets.GetCurrentReport(house);
                 rates = googleSheets.GetRates(house);
             }
             catch (Exception e)

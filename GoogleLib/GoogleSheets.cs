@@ -67,7 +67,7 @@ namespace GoogleLib
         /// <param name="houseNumber">House number for information</param>
         /// <returns>Requested information</returns>
         /// <exception cref="AccessDeniedException">Thrown when had problem with there was an access problem with Google Drive</exception>
-        public async Task<IList<IList<object>>> GetHouseInfoAsync(string houseNumber)
+        public async Task<IList<IList<object>>> GetCurrentReportAsync(string houseNumber)
         {
             return await ReadInfoAsync(Sheets.ServiceSpreadSheetId, 
                 $"{houseNumber}!A1:AH{Houses.GetNumFlats(houseNumber)}");
@@ -79,9 +79,9 @@ namespace GoogleLib
         /// <param name="houseNumber">House number for information</param>
         /// <returns>Requested information</returns>
         /// <exception cref="AccessDeniedException">Thrown when had problem with there was an access problem with Google Drive</exception>
-        public IList<IList<object>> GetHouseInfo(string houseNumber)
+        public IList<IList<object>> GetCurrentReport(string houseNumber)
         {
-            return GetHouseInfoAsync(houseNumber).Result;
+            return GetCurrentReportAsync(houseNumber).Result;
         }
 
         /// <summary>
@@ -106,8 +106,7 @@ namespace GoogleLib
             string month = rates[6].ToString().ToLower();
             rates[6] = month;
             int numMonth = Date.GetNumMonth(month);
-            rates.Add(Date.GetShortNumMonth(numMonth));
-            rates.Add(numMonth == 12 ? "01" : Date.GetShortNumMonth(numMonth + 1));
+            rates.Add(numMonth);
 
             return rates;
         }
@@ -124,13 +123,13 @@ namespace GoogleLib
         }
 
         /// <summary>
-        /// Get information about payments
+        /// Get information about reports
         /// </summary>
-        /// <returns>Requested payments</returns>
+        /// <returns>Requested reports</returns>
         /// <exception cref="AccessDeniedException">Thrown when had problem with there was an access problem with Google Drive</exception>
-        public async Task<IList<IList<object>>> GetPaymentsAsync()
+        public async Task<IList<IList<object>>> GetReportsAsync()
         {
-            return await ReadInfoAsync(Sheets.PaymentsSpreadSheetId, "Список платежей!A2:H100000");
+            return await ReadInfoAsync(Sheets.ReportsSpreadSheetId, "Info!A1:AH250000");
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Tools
         /// <summary>
         /// Get a string with the name of the previous month and year
         /// </summary>
-        public static string GetPrevDate()
+        public static string GetFullPrevDate()
         {
             return $"{GetNamePrevMonth()} {DateTime.Now.Year}";
         }
@@ -33,6 +33,7 @@ namespace Tools
 
         /// <summary>
         /// Get a number of the month
+        /// <param name="month">String of month</param>
         /// </summary>
         public static int GetNumMonth(string month) => month switch
         {
@@ -53,6 +54,7 @@ namespace Tools
 
         /// <summary>
         /// Get a string with the name of the month
+        /// <param name="month">Number of month</param>
         /// </summary>
         public static string GetNameMonth(int month) => month switch
         {
@@ -73,8 +75,32 @@ namespace Tools
 
         /// <summary>
         /// Get a string with the number of the month (2 digits)
+        /// <param name="numMonth">Number of month to convert</param>
         /// </summary>
-        public static string GetShortNumMonth(int numMonth) =>
-            numMonth < 10 ? "0" + numMonth : numMonth.ToString();
+        public static string GetShortMonth(int numMonth)
+        {
+            if (numMonth < 0 || numMonth > 12)
+            {
+                throw new ArgumentException("Некорректный номер месяца");
+            }
+
+            if (numMonth < 10)
+            {
+                return "0" + numMonth;
+            }
+            else
+            {
+                return numMonth.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Get 2 last digits of year
+        /// </summary>
+        /// <param name="year">Year to convert</param>
+        public static int GetShortYear(int year)
+        {
+            return year - 2000;
+        }
     }
 }

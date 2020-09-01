@@ -9,8 +9,8 @@
         Closing="Window_Closing"
         WindowStartupLocation="CenterScreen"
         Title="Komfort" 
-        Height="460" 
-        Width="635"
+        Height="660" 
+        Width="835"
         FontSize="15">
 
     <Window.Resources>
@@ -123,19 +123,44 @@
                             HorizontalAlignment="Center"
                             FontSize="18"/>
                     <StackPanel 
-                        Visibility="{Binding FoundPaymentsVisibility, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource visibilityConverter}}">
+                        Visibility="{Binding FoundReportsVisibility, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource visibilityConverter}}">
                         <ListView 
                             BorderThickness="0,0,0,1" 
-                            Height="200" 
+                            Height="400" 
                             Margin="0,10" 
-                            ItemsSource="{Binding Payments, UpdateSourceTrigger=PropertyChanged}">
+                            ItemsSource="{Binding Reports, UpdateSourceTrigger=PropertyChanged}">
                             <ListView.View>
                                 <GridView>
-                                    <GridViewColumn DisplayMemberBinding="{Binding Path=ForWer}" Width="155">За содержание дома</GridViewColumn>
-                                    <GridViewColumn DisplayMemberBinding="{Binding Path=ForWater}" Width="80">За воду</GridViewColumn>
-                                    <GridViewColumn DisplayMemberBinding="{Binding Path=ForHeating}" Width="115">За отопление</GridViewColumn>
-                                    <GridViewColumn DisplayMemberBinding="{Binding Path=Total}" Width="80">Всего</GridViewColumn>
-                                    <GridViewColumn DisplayMemberBinding="{Binding Path=Month}" Width="85">Месяц</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=HeatingStartDebit}" Width="85">ДебетО</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=HeatingStartCredit}" Width="85">КредитО</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=HeatingSquare}" Width="85">ПлощадьО</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=HeatingType}" Width="85">ТипО</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=HeatingCurrentValue}" Width="95">ПослПоказО</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=HeatingPreviousValue}" Width="95">ПредПоказО</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=HeatingValue}" Width="85">ОбъемО</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=HeatingForService}" Width="85">ЗаУслугиО</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=HeatingPreviliges}" Width="85">ЛьготаО</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=HeatingTotal}" Width="85">ИтогоО</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=HeatingCash}" Width="85">КассаО</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=HeatingBank}" Width="85">БанкО</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=HeatingEndDebit}" Width="85">ДебетО</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=HeatingEndCredit}" Width="85">КредитО</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=WerStartDebit}" Width="85">ДебетСД</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=WerStartCredit}" Width="85">КредитСД</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=WerSquare}" Width="85">ПлощадьСД</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=WerForMonth}" Width="85">ЗаСД</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=WaterCurrentValue}" Width="115">ПослПоказВоды</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=WaterPreviousValue}" Width="115">ПредПоказВоды</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=WaterValue}" Width="85">ОбъемВода</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=WaterForMonth}" Width="85">ЗаВоду</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=WerForService}" Width="85">ЗаУслугиСД</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=WerPreviliges}" Width="85">ЛьготаСД</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=WerTotal}" Width="85">ИтогоСД</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=WerCash}" Width="85">КассаСД</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=WerBank}" Width="85">БанкСД</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=WerEndDebit}" Width="85">ДебетСД</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=WerEndCredit}" Width="85">КредитСД</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=Month}" Width="80">Месяц</GridViewColumn>
                                     <GridViewColumn DisplayMemberBinding="{Binding Path=Year}" Width="60">Год</GridViewColumn>
                                 </GridView>
                             </ListView.View>

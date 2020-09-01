@@ -67,8 +67,8 @@ namespace Desktop.Tools
         {
             CreateTemplatePaymentsTable(doc);
 
-            string name = string.IsNullOrEmpty(payments[0].FlatOwner) ?
-                "\"Имя владельца\"" : payments[0].FlatOwner;
+            string name = string.IsNullOrEmpty(payments[0].Owner) ?
+                "\"Имя владельца\"" : payments[0].Owner;
             doc.Tables[1].Cell(1, 1).Range.Text =
                 $"Платежи для {name}  (лицевой счет: {payments[0].AccountId})";
 
@@ -99,28 +99,30 @@ namespace Desktop.Tools
             WordReplace(doc, "{AD}", info[1]);
             WordReplace(doc, "{MT}", rates[6]);
             WordReplace(doc, "{FA}", $"ул. Пишоновская, {house} кв. {info[0]}");
-            WordReplace(doc, "{MS}", Date.GetShortNumMonth(Number.GetInt(rates[7])));
-            WordReplace(doc, "{ME}", Date.GetShortNumMonth(Number.GetInt(rates[8])));
-            WordReplace(doc, "{HSS}", Math.Round(Number.GetDouble(info[3]) - Number.GetDouble(info[4]), 2)); // debet - credit
-            WordReplace(doc, "{CHV}", string.IsNullOrEmpty(info[6].ToString()) ? "-" : Number.GetDouble(info[7]).ToString()); // - or value
-            WordReplace(doc, "{PHV}", string.IsNullOrEmpty(info[6].ToString()) ? "-" : Number.GetDouble(info[8]).ToString()); // - or value
-            WordReplace(doc, "{HV}", string.IsNullOrEmpty(info[6].ToString()) ? "-" : Number.GetDouble(info[9]).ToString()); // - or value
+            WordReplace(doc, "{MS}", Date.GetShortMonth(DateTime.Now.AddMonths(-1).Month));
+            WordReplace(doc, "{ME}", Date.GetShortMonth(DateTime.Now.Month));
+            WordReplace(doc, "{YS}", Date.GetShortYear(DateTime.Now.AddMonths(-1).Year));
+            WordReplace(doc, "{YE}", Date.GetShortYear(DateTime.Now.Year));
+            WordReplace(doc, "{HSS}", Math.Round(info[3].ToDouble() - info[4].ToDouble(), 2)); // debet - credit
+            WordReplace(doc, "{CHV}", string.IsNullOrEmpty(info[6].ToString()) ? "-" : info[7].ToString()); // - or value
+            WordReplace(doc, "{PHV}", string.IsNullOrEmpty(info[6].ToString()) ? "-" : info[8].ToString()); // - or value
+            WordReplace(doc, "{HV}", string.IsNullOrEmpty(info[6].ToString()) ? "-" : info[9].ToString()); // - or value
             WordReplace(doc, "{HR}", string.IsNullOrEmpty(info[6].ToString()) ? rates[1] : rates[2]); // central or custom
-            WordReplace(doc, "{FH}", Math.Round(Number.GetDouble(info[10]) - Number.GetDouble(info[11]), 2)); // forHeating - privileges
-            WordReplace(doc, "{HP}", Math.Round(Number.GetDouble(info[13]) + Number.GetDouble(info[14]), 2)); // cashbox + bank
-            WordReplace(doc, "{HSE}", Math.Round(Number.GetDouble(info[15]) - Number.GetDouble(info[16]), 2)); // debet - credit
-            WordReplace(doc, "{WRSS}", Math.Round(Number.GetDouble(info[18]) - Number.GetDouble(info[19]), 2)); // debet - credit
+            WordReplace(doc, "{FH}", Math.Round(info[10].ToDouble() - info[11].ToDouble(), 2)); // forHeating - privileges
+            WordReplace(doc, "{HP}", Math.Round(info[13].ToDouble() + info[14].ToDouble(), 2)); // cashbox + bank
+            WordReplace(doc, "{HSE}", Math.Round(info[15].ToDouble() - info[16].ToDouble(), 2)); // debet - credit
+            WordReplace(doc, "{WRSS}", Math.Round(info[17].ToDouble() - info[18].ToDouble(), 2)); // debet - credit
             string flatNumber = info[0].ToString();
-            WordReplace(doc, "{WRR}", Number.GetInt(flatNumber.Contains('/') ? flatNumber[0..^2] : flatNumber) < 7 ? rates[4] : rates[3]); // special or general
-            WordReplace(doc, "{FWR}", Math.Round(Number.GetDouble(info[21]) - Number.GetDouble(info[27]), 2)); // forWer - privileges
-            WordReplace(doc, "{WRP}", Math.Round(Number.GetDouble(info[29]) + Number.GetDouble(info[30]) - Number.GetDouble(info[25]), 2)); // cashbox + bank - forWater
-            WordReplace(doc, "{WRSE}", Math.Round(Number.GetDouble(info[31]) - Number.GetDouble(info[32]), 2)); // debet - credit
-            WordReplace(doc, "{CWV}", Number.GetDouble(info[22])); // current water value
-            WordReplace(doc, "{PWV}", Number.GetDouble(info[23])); // prev water value
-            WordReplace(doc, "{WV}", Number.GetDouble(info[24]));  // water value
+            WordReplace(doc, "{WRR}", (flatNumber.Contains('/') ? flatNumber[0..^2] : flatNumber).ToInt() < 7 ? rates[4] : rates[3]); // special or general
+            WordReplace(doc, "{FWR}", Math.Round(info[20].ToDouble() - info[26].ToDouble(), 2)); // forWer - privileges
+            WordReplace(doc, "{WRP}", Math.Round(info[28].ToDouble() + info[29].ToDouble() - info[24].ToDouble(), 2)); // cashbox + bank - forWater
+            WordReplace(doc, "{WRSE}", Math.Round(info[30].ToDouble() - info[31].ToDouble(), 2)); // debet - credit
+            WordReplace(doc, "{CWV}", info[21].ToDouble()); // current water value
+            WordReplace(doc, "{PWV}", info[22].ToDouble()); // prev water value
+            WordReplace(doc, "{WV}", info[23].ToDouble());  // water value
             WordReplace(doc, "{WTR}", rates[0]); // water rate
-            WordReplace(doc, "{FWT}", Number.GetDouble(info[25])); // for water
-            WordReplace(doc, "{WTP}", Number.GetDouble(info[25])); // water payment
+            WordReplace(doc, "{FWT}", info[24].ToDouble()); // for water
+            WordReplace(doc, "{WTP}", info[24].ToDouble()); // water payment
             WordReplace(doc, "{GSS}", "-");
             WordReplace(doc, "{GR}", "-");
             WordReplace(doc, "{FG}", "-");
@@ -140,12 +142,12 @@ namespace Desktop.Tools
             table.Borders.InsideLineStyle = WdLineStyle.wdLineStyleSingle;
             table.Borders.OutsideLineStyle = WdLineStyle.wdLineStyleSingle;
 
-            table.Cell(1, 1).Width = 134f;
-            table.Cell(1, 2).Width = 71f;
+            table.Cell(1, 1).Width = 128f;
+            table.Cell(1, 2).Width = 64f;
             table.Cell(1, 3).Width = 85f;
             table.Cell(1, 4).Width = 64f;
-            table.Cell(1, 5).Width = 71f;
-            table.Cell(1, 6).Width = 52f;
+            table.Cell(1, 5).Width = 67f;
+            table.Cell(1, 6).Width = 50f;
 
             table.Cell(1, 1).Range.Text = "{FWR}";
             table.Cell(1, 2).Range.Text = "{FWTR}";

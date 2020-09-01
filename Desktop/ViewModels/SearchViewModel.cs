@@ -15,7 +15,7 @@ namespace Desktop.ViewModels
         //Collapsed	2	
         //Hidden	1	
         //Visible	0
-        private int _foundPaymentsVisibility = 2;
+        private int _foundReportsVisibility = 2;
 
         public string AccountId
         {
@@ -35,16 +35,16 @@ namespace Desktop.ViewModels
                 OnPropertyChanged("SearchInfo");
             }
         }
-        public int FoundPaymentsVisibility
+        public int FoundReportsVisibility
         {
-            get { return _foundPaymentsVisibility; }
+            get { return _foundReportsVisibility; }
             set
             {
-                _foundPaymentsVisibility = value;
-                OnPropertyChanged("FoundPaymentsVisibility");
+                _foundReportsVisibility = value;
+                OnPropertyChanged("FoundReportsVisibility");
             }
         }
-        public ObservableCollection<Payment> Payments { get; set; } = new ObservableCollection<Payment>();
+        public ObservableCollection<Report> Reports { get; set; } = new ObservableCollection<Report>();
 
         private RelayCommand _searchCommand;
         public RelayCommand SearchCommand
@@ -56,8 +56,8 @@ namespace Desktop.ViewModels
                   {
                       try
                       {
-                          var payments = await SearchPayments.SearchAsync(AccountId);
-                          SearchCompleted(payments, "Не правильный формат");
+                          var reports = await SearchReports.SearchAsync(AccountId);
+                          SearchCompleted(reports, "Не правильный формат");
                       }
                       catch (Exception e)
                       {
@@ -69,7 +69,7 @@ namespace Desktop.ViewModels
                       }
                   },
                   obj => !TransitionToNewMonth.Processing &&
-                         !SearchPayments.Processing &&
+                         !SearchReports.Processing &&
                          !PrintPayments.Processing
                   ));
             }
@@ -85,7 +85,21 @@ namespace Desktop.ViewModels
                   {
                       try
                       {
-                          await Task.Run(() => PrintPayments.Print(Payments.ToList()));
+                          List<Payment> payments = new List<Payment>();
+                          foreach (Report report in Reports)
+                          {
+                              // add 15 payments with bank
+                              if(report.HeatingBank != 0 || report.WerBank != 0 || 
+                                    report.HeatingPreviliges != 0 || report.WerPreviliges != 0)
+                              {
+                                  payments.Add(new Payment(report));
+                                  if(payments.Count == 15)
+                                  {
+                                      break;
+                                  }
+                              }
+                          }
+                          await Task.Run(() => PrintPayments.Print(payments));
                       }
                       catch (Exception e)
                       {
@@ -96,42 +110,44 @@ namespace Desktop.ViewModels
                           RelayCommand.RaiseCanExecuteChanged();
                       }
                   },
-                  obj => !AppViewModel.IsAnyProcessing() && Payments.Count > 0));
+                  obj => !AppViewModel.IsAnyProcessing() && Reports.Count > 0));
             }
         }
 
-        private void SearchCompleted(List<Payment> payments, string errorMessage = "")
+        private void SearchCompleted(List<Report> reports, string errorMessage = "")
         {
-            if (payments != null)
+            if (reports != null)
             {
-                FoundPaymentsVisibility = 0;
-                UpdatePayments(payments);
-                if (payments.Count > 0)
+                if (reports.Count > 0)
                 {
-                    string name = string.IsNullOrEmpty(payments[0].FlatOwner) ?
-                       "\"Имя владельца\"" : payments[0].FlatOwner;
+                    string name = string.IsNullOrEmpty(reports[0].Owner) ?
+                       "\"Имя владельца\"" : reports[0].Owner;
                     SearchInfo = $"{name} (лицевой счет: {AccountId})";
+                    FoundReportsVisibility = 0;
+                    UpdateReports(reports);
                 }
                 else
                 {
-                    SearchInfo = "Платежи не найдены";
+                    SearchInfo = "Записи не найдены";
+                    UpdateReports(null);
+                    FoundReportsVisibility = 2;
                 }
             }
             else
             {
                 SearchInfo = errorMessage;
-                UpdatePayments(null);
-                FoundPaymentsVisibility = 2;
+                UpdateReports(null);
+                FoundReportsVisibility = 2;
             }
         }
-        private void UpdatePayments(List<Payment> payments)
+        private void UpdateReports(List<Report> reports)
         {
-            Payments.Clear();
-            if (payments != null && payments.Count > 0)
+            Reports.Clear();
+            if (reports != null && reports.Count > 0)
             {
-                foreach (Payment payment in payments)
+                foreach (Report report in reports)
                 {
-                    Payments.Add(payment);
+                    Reports.Add(report);
                 }
             }
         }
