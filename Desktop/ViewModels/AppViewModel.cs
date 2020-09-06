@@ -16,9 +16,9 @@ namespace Desktop.ViewModels
         }
 
         public static bool IsAnyProcessing() => 
-            GenerationFlyers.Processing ||
-            TransitionToNewMonth.Processing ||
-            SearchReports.Processing ||
-            PrintPayments.Processing;
+            GenerationFlyersCommand.Processing ||
+            TransitionToNewMonthCommand.Processing ||
+            SearchReportsCommand.Processing ||
+            PrintReportsCommand.Processing;
     }
 }

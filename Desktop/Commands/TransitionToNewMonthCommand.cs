@@ -8,7 +8,7 @@ using System;
 
 namespace Desktop.Commands
 {
-    internal static class TransitionToNewMonth
+    internal static class TransitionToNewMonthCommand
     {
         internal delegate void TransitionHandler(double value, string message);
         internal static event TransitionHandler UpdateProgress;

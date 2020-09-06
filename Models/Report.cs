@@ -31,7 +31,7 @@ namespace Models
         public int WaterPreviousValue { get; set; }
         public int WaterValue { get; set; }
         public double WaterForMonth { get; set; }
-        public double WerForService { get; set; }
+        public double WerWaterForService { get; set; }
         public double WerPreviliges { get; set; }
         public double WerTotal { get; set; }
         public double WerCash { get; set; }
@@ -79,7 +79,7 @@ namespace Models
             WaterPreviousValue = waterPreviousValue;
             WaterValue = waterValue;
             WaterForMonth = waterForMonth;
-            WerForService = werForService;
+            WerWaterForService = werForService;
             WerPreviliges = werPreviliges;
             WerTotal = werTotal;
             WerCash = werCash;

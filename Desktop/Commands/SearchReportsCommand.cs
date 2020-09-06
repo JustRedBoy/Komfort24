@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Desktop.Commands
 {
-    internal static class SearchReports
+    internal static class SearchReportsCommand
     {
         internal static bool Processing { get; set; } = false;
         private static IList<IList<object>> Info { get; set; } = null;

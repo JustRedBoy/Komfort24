@@ -10,7 +10,7 @@ using Models;
 
 namespace Desktop.Commands
 {
-    public static class GenerationFlyers
+    public static class GenerationFlyersCommand
     {
         internal delegate void GenerationHandler(double value);
         internal static event GenerationHandler UpdateProgress;

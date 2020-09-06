@@ -1,4 +1,5 @@
 ﻿using Desktop.Commands;
+using Desktop.Models;
 using Models;
 using System;
 using System.Collections.Generic;
@@ -56,7 +57,7 @@ namespace Desktop.ViewModels
                   {
                       try
                       {
-                          var reports = await SearchReports.SearchAsync(AccountId);
+                          var reports = await SearchReportsCommand.SearchAsync(AccountId);
                           SearchCompleted(reports, "Не правильный формат");
                       }
                       catch (Exception e)
@@ -68,9 +69,9 @@ namespace Desktop.ViewModels
                           RelayCommand.RaiseCanExecuteChanged();
                       }
                   },
-                  obj => !TransitionToNewMonth.Processing &&
-                         !SearchReports.Processing &&
-                         !PrintPayments.Processing
+                  obj => !TransitionToNewMonthCommand.Processing &&
+                         !SearchReportsCommand.Processing &&
+                         !PrintReportsCommand.Processing
                   ));
             }
         }
@@ -85,21 +86,7 @@ namespace Desktop.ViewModels
                   {
                       try
                       {
-                          List<Payment> payments = new List<Payment>();
-                          foreach (Report report in Reports)
-                          {
-                              // add 15 payments with bank
-                              if(report.HeatingBank != 0 || report.WerBank != 0 || 
-                                    report.HeatingPreviliges != 0 || report.WerPreviliges != 0)
-                              {
-                                  payments.Add(new Payment(report));
-                                  if(payments.Count == 15)
-                                  {
-                                      break;
-                                  }
-                              }
-                          }
-                          await Task.Run(() => PrintPayments.Print(payments));
+                          await Task.Run(() => PrintReportsCommand.Print(Reports));
                       }
                       catch (Exception e)
                       {

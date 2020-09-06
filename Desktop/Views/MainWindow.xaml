@@ -153,7 +153,7 @@
                                     <GridViewColumn DisplayMemberBinding="{Binding Path=WaterPreviousValue}" Width="115">ПредПоказВоды</GridViewColumn>
                                     <GridViewColumn DisplayMemberBinding="{Binding Path=WaterValue}" Width="85">ОбъемВода</GridViewColumn>
                                     <GridViewColumn DisplayMemberBinding="{Binding Path=WaterForMonth}" Width="85">ЗаВоду</GridViewColumn>
-                                    <GridViewColumn DisplayMemberBinding="{Binding Path=WerForService}" Width="85">ЗаУслугиСД</GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Path=WerWaterForService}" Width="85">ЗаУслугиСД</GridViewColumn>
                                     <GridViewColumn DisplayMemberBinding="{Binding Path=WerPreviliges}" Width="85">ЛьготаСД</GridViewColumn>
                                     <GridViewColumn DisplayMemberBinding="{Binding Path=WerTotal}" Width="85">ИтогоСД</GridViewColumn>
                                     <GridViewColumn DisplayMemberBinding="{Binding Path=WerCash}" Width="85">КассаСД</GridViewColumn>

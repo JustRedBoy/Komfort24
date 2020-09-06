@@ -56,15 +56,15 @@ namespace Desktop.ViewModels
                 return _generationCommand ??
                   (_generationCommand = new RelayCommand(async obj =>
                   {
-                      if (!GenerationFlyers.Processing)
+                      if (!GenerationFlyersCommand.Processing)
                       {
                           try
                           {
                               GenerationButtonText = "Отменить";
                               GenerationInfo = "Подготовка к созданию листовок ...";
                               IsGenerationEnabled = false;
-                              GenerationFlyers.UpdateProgress += UpdateProgress;
-                              bool isSuccessful = await GenerationFlyers.StartGenerationAsync();
+                              GenerationFlyersCommand.UpdateProgress += UpdateProgress;
+                              bool isSuccessful = await GenerationFlyersCommand.StartGenerationAsync();
                               GenerationCompleted(isSuccessful ? "Генерация листовок завершена":
                                   "Генерация листовок отменена");
                           }
@@ -81,18 +81,18 @@ namespace Desktop.ViewModels
                       {
                           GenerationInfo = "Отмена генерации ...";
                           IsGenerationEnabled = false;
-                          GenerationFlyers.CancelGeneration();
+                          GenerationFlyersCommand.CancelGeneration();
                       }
                   },
-                  obj => (!TransitionToNewMonth.Processing &&
-                          !PrintPayments.Processing) || GenerationFlyers.Processing
+                  obj => (!TransitionToNewMonthCommand.Processing &&
+                          !PrintReportsCommand.Processing) || GenerationFlyersCommand.Processing
                   ));
             }
         }
 
         private void UpdateProgress(double value)
         {
-            if (!GenerationFlyers.Cancelled)
+            if (!GenerationFlyersCommand.Cancelled)
             {
                 if (!IsGenerationEnabled)
                 {
@@ -108,7 +108,7 @@ namespace Desktop.ViewModels
             GenerationButtonText = "Начать";
             GenerationProgressValue = 0;
             GenerationInfo = message;
-            GenerationFlyers.UpdateProgress -= UpdateProgress;
+            GenerationFlyersCommand.UpdateProgress -= UpdateProgress;
         }
     }
 }

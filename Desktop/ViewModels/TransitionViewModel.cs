@@ -37,8 +37,8 @@ namespace Desktop.ViewModels
                   {
                       try
                       {
-                          TransitionToNewMonth.UpdateProgress += UpdateProgress;
-                          bool isSuccessful = await TransitionToNewMonth.StartTransitionAsync();
+                          TransitionToNewMonthCommand.UpdateProgress += UpdateProgress;
+                          bool isSuccessful = await TransitionToNewMonthCommand.StartTransitionAsync();
                           TransitionCompleted(isSuccessful ? "Все операции были успешно выполнены!" 
                               : "Переход на новый месяц уже был выполнен в этом месяце!");
                       }
@@ -59,7 +59,7 @@ namespace Desktop.ViewModels
         {
             TransitionProgressValue = 0.0;
             TransitionInfo = message;     
-            TransitionToNewMonth.UpdateProgress -= UpdateProgress;
+            TransitionToNewMonthCommand.UpdateProgress -= UpdateProgress;
         }
         private void UpdateProgress(double value, string message)
         {
