@@ -1,12 +1,11 @@
 ﻿using GoogleLib;
 using Tools;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Desktop.Tools;
 using Models;
+using Desktop.Extensions;
 
 namespace Desktop.Commands
 {
@@ -19,42 +18,49 @@ namespace Desktop.Commands
         internal static bool Cancelled { get; set; } = false;
 
         private static int _processIndicator = 0;
-        private static readonly double _interval = 100.0 / Houses.GetNumAllFlats();
+        private static double _interval = 0;
         private static CancellationTokenSource _cts;
 
         /// <summary>
         /// Starting process of generating flyers
         /// </summary>
+        /// <returns>Result of operation</returns>
         internal static async Task<bool> StartGenerationAsync()
         {
-            _cts = new CancellationTokenSource();
             Processing = true;
             Cancelled = false;
-            _processIndicator = 0;
-
-            string folderPath = Environment.CurrentDirectory + $"\\Листовки за {Date.GetNamePrevMonth()}";
-            Directory.CreateDirectory(folderPath);
+            _cts = new CancellationTokenSource();
             try
             {
+                GoogleSheets sheets = new GoogleSheets();
+                ServiceContext serviceContext = new ServiceContext();
+                await serviceContext.InitContextAsync(sheets);
+                _processIndicator = 0;
+                _interval = 100.0 / serviceContext.TotalAccounts;
+
+                string folderPath = Environment.CurrentDirectory + $"\\Листовки за {Date.GetNamePrevMonth()}";
+                Directory.CreateDirectory(folderPath);
+
                 //start generation (every house in task)
-                Task<int>[] tasks = new Task<int>[Houses.Count];
-                for (int i = 0; i < Houses.Count; i++)
+                Task<int>[] tasks = new Task<int>[serviceContext.TotalHouses];
+                for (int i = 0; i < serviceContext.TotalHouses; i++)
                 {
                     int num = i;
-                    tasks[i] = Task.Run(() => Start(Houses.GetHouseInfo(num).fullHouseNumber, 0, _cts.Token));
+                    tasks[i] = Task.Run(() => serviceContext.Houses[num].StartFlyersGeneration(0, _cts.Token));
                 }
                 await Task.WhenAll(tasks);
 
                 //extra generation if there were errors
                 if (!_cts.IsCancellationRequested)
                 {
-                    for (int i = 0; i < Houses.Count; i++)
+                    for (int i = 0; i < serviceContext.TotalHouses; i++)
                     {
                         int generatedCount = tasks[i].Result;
-                        if (generatedCount != Houses.GetNumFlats(i))
+                        if (generatedCount != serviceContext.TotalAccounts)
                         {
-                            generatedCount = await Task.Run(() => Start(Houses.GetHouseInfo(i).fullHouseNumber, generatedCount, _cts.Token));
-                            if (generatedCount != Houses.GetNumFlats(i))
+                            generatedCount = await Task.Run(() => 
+                                serviceContext.Houses[i].StartFlyersGeneration(generatedCount, _cts.Token));
+                            if (generatedCount != serviceContext.Houses[i].FlatCount)
                             {
                                 throw new Exception("Генерация завершилась с ошибкой после 2 попыток, повторите операцию");
                             }
@@ -62,10 +68,7 @@ namespace Desktop.Commands
                     }
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+                return false;
             }
             catch (Exception e)
             {
@@ -77,6 +80,7 @@ namespace Desktop.Commands
                 Processing = false;
             }
         }
+
         /// <summary>
         /// Сanceling process of generating flyers
         /// </summary>
@@ -88,60 +92,8 @@ namespace Desktop.Commands
                 _cts?.Cancel();
             }
         }
-        private static int Start(string house, int startNum, CancellationToken token = default)
-        {
-            GoogleSheets googleSheets = new GoogleSheets();
-            IList<IList<object>> info;
-            IList<object> rates;
-            try
-            {
-                info = googleSheets.GetCurrentReport(house);
-                rates = googleSheets.GetRates(house);
-            }
-            catch (Exception e)
-            {
-                throw e.InnerException;
-            }
 
-            Word word = new Word();
-            string folderPath = Environment.CurrentDirectory + $"\\Листовки за {Date.GetNamePrevMonth()}";
-            string filePath = folderPath + $"\\{house.Replace('/', '_')}.docx";
-            if (startNum == 0)
-            {
-                word.CopyDocument(Environment.CurrentDirectory + $"\\Resources\\FlyerTemplate.docx", filePath);
-            }
-            var doc = word.OpenDocument(filePath);
-
-            int generatedInHouse = startNum;
-            if (startNum == 0)
-            {
-                doc.Tables[1].Range.Cut();
-            }
-            try
-            {
-                for (; generatedInHouse < Houses.GetNumFlats(house); generatedInHouse++)
-                {
-                    if (token.IsCancellationRequested)
-                    {
-                        return generatedInHouse;
-                    }
-                    word.FormationFlayer(doc, info[generatedInHouse], rates, house);
-                    UpdateInfo();
-                }
-                return generatedInHouse;
-            }
-            catch (Exception)
-            {
-                return generatedInHouse;
-            }
-            finally
-            {
-                word.SaveDocument(doc);
-                word.CloseDocument(doc);
-                word.Quit();
-            }
-        }
-        private static void UpdateInfo()
+        internal static void UpdateInfo()
         {
             UpdateProgress(++_processIndicator * _interval);
         }

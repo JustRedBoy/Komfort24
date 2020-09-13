@@ -20,7 +20,7 @@ namespace Desktop.Models
         public double WerStateEnd { get; set; }
         public string MonthAndYear { get; set; }
 
-        public PrintReport(Report report)
+        public PrintReport(ArchiveReport report)
         {
             AccountId = report.AccountId;
             Owner = report.Owner;

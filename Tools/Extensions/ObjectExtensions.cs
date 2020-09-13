@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Tools
+namespace Tools.Extensions
 {
     public static class ObjectExtensions
     {

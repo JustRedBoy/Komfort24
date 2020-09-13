@@ -23,17 +23,6 @@ namespace GoogleLib
             });
         }
 
-        internal static SheetsService GetSheetsServiceWithoutLogin()
-        {
-            using var stream = new FileStream("google-credentials.json", FileMode.Open, FileAccess.Read);
-            var serviceInitializer = new BaseClientService.Initializer
-            {
-                HttpClientInitializer = GoogleCredential.FromStream(stream)
-                    .CreateScoped(SheetsService.Scope.SpreadsheetsReadonly)
-            };
-            return new SheetsService(serviceInitializer);
-        }
-
         internal static DriveService GetDriveService()
         {
             return new DriveService(new BaseClientService.Initializer()

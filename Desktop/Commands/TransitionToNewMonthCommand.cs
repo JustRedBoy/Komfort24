@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System;
+using Desktop.Extensions;
 
 namespace Desktop.Commands
 {
@@ -16,26 +17,30 @@ namespace Desktop.Commands
         internal static bool Processing { get; set; } = false;
 
         private static int _processIndicator = 0;
-        private static readonly double _interval = 100.0 / (Houses.Count * 2 + 4);
+        private static double _interval = 0;
 
         /// <summary>
         /// Starting of the transition to a new month
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Result of operation</returns>
         internal async static Task<bool> StartTransitionAsync()
         {
             Processing = true;
-            GoogleDrive drive = new GoogleDrive();
-            GoogleSheets sheets = new GoogleSheets();
-            _processIndicator = 0;
-
             try
             {
+                GoogleDrive drive = new GoogleDrive();
+                GoogleSheets sheets = new GoogleSheets();
+                ServiceContext serviceContext = new ServiceContext();
+                await serviceContext.InitContextAsync(sheets);
+                _processIndicator = 0;
+                _interval = 100.0 / (serviceContext.TotalHouses + 4);
+
                 if (await TransitionCheck(drive))
                 {
                     await CreateFolderAndCopyFilesAsync(drive);
-                    await AddNewReports(sheets);
-                    await CorrectFiles(sheets);
+                    await AddReportsToArchive(sheets, serviceContext);
+                    await CorrectFiles(sheets, serviceContext);
+                    SearchReportsCommand.ClearReportsInfo();
 
                     return true;
                 }
@@ -49,6 +54,7 @@ namespace Desktop.Commands
                 Processing = false;
             }
         }
+
         private static async Task<bool> TransitionCheck(GoogleDrive drive)
         {
             UpdateInfo("Проверка ...");
@@ -58,7 +64,7 @@ namespace Desktop.Commands
                 foreach (string name in files)
                 {
                     //if a folder with a special name exists, then the transition has already been
-                    if (name == Date.GetFullPrevDate())
+                    if (name == Date.GetFullPrevMonth())
                     {
                         return false;
                     }
@@ -66,120 +72,40 @@ namespace Desktop.Commands
             }
             return true;
         }
+
         private static async Task CreateFolderAndCopyFilesAsync(GoogleDrive drive)
         {
             UpdateInfo("Создание отдельной папки для файлов ...");
-            string folderId = await drive.CreateFolderAsync(Date.GetFullPrevDate());
+            string folderId = await drive.CreateFolderAsync(Date.GetFullPrevMonth());
             UpdateInfo("Копирование файлов в отдельную папку ...");
-            await drive.CopyFileAsync(Sheets.HeatingSpreadSheetId, $"Ведомость О ({Date.GetFullPrevDate()})", folderId);
-            await drive.CopyFileAsync(Sheets.WerSpreadSheetId, $"Ведомость СД ({Date.GetFullPrevDate()})", folderId);
+            await drive.CopyFileAsync(Sheets.HeatingSpreadSheetId, $"Ведомость О ({Date.GetFullPrevMonth()})", folderId);
+            await drive.CopyFileAsync(Sheets.WerSpreadSheetId, $"Ведомость СД ({Date.GetFullPrevMonth()})", folderId);
         }
-        private static async Task AddNewReports(GoogleSheets sheets)
+
+        private static async Task AddReportsToArchive(GoogleSheets sheets, ServiceContext serviceContext)
         {
-            IList<IList<object>> reports = new List<IList<object>>();
-            for (int i = 0; i < Houses.Count; i++)
+            List<IList<object>> archiveReports = new List<IList<object>>();
+            for (int i = 0; i < serviceContext.TotalHouses; i++)
             {
-                string houseNumber = Houses.GetHouseInfo(i).fullHouseNumber;
-                UpdateInfo($"Формирование отчета для дома {houseNumber} ...");
-                var info = await sheets.GetCurrentReportAsync(houseNumber);
-                for (int j = 0; j < Houses.GetNumFlats(i); j++)
-                {
-                    if(i == 0 && j == 58 && info[j][1].ToString() == "7695")
-                    {
-                        continue;
-                    }
-                    reports.Add(info[j]);
-                }
+                archiveReports.AddRange(serviceContext.Houses[i].GetObjects());
             }
-            UpdateInfo($"Добавление отчета ...");
-            var oldReports = await sheets.GetReportsAsync();
-            foreach (var report in oldReports)
-            {
-                reports.Add(report);
-            }
-            await sheets.WriteInfoAsync(reports, Sheets.ReportsSpreadSheetId, $"A1:AH{reports.Count}");
+            UpdateInfo($"Сохранение отчета ...");
+            var oldReports = await sheets.GetArchiveReportsInfoAsync();
+            archiveReports.AddRange(oldReports);
+            await sheets.UpdateArchiveReportsInfoAsync(archiveReports);
         }
-        private static async Task CorrectFiles(GoogleSheets sheets)
+
+        private static async Task CorrectFiles(GoogleSheets sheets, ServiceContext serviceContext)
         {
-            var month = new List<IList<object>> { new List<object>() };
-            month[0].Add(Date.GetNameCurMonth());
-
-            var year = new List<IList<object>> { new List<object>() };
-            year[0].Add(DateTime.Now.Year);
-
-            for (int i = 0; i < Houses.Count; i++)
+            string month = Date.GetNameCurMonth();
+            for (int i = 0; i < serviceContext.TotalHouses; i++)
             {
-                UpdateInfo($"Переход на новый месяц дома {Houses.GetHouseInfo(i).fullHouseNumber} ...");
-                string houseNum = Houses.GetHouseInfo(i).fullHouseNumber;
-                int numFlats = Houses.GetNumFlats(i);
-
-                // Change debit and credit
-                var debitAndCredit = await sheets.ReadInfoAsync(Sheets.WerSpreadSheetId, $"{houseNum}!Q9:R{8 + numFlats}");
-                await sheets.WriteInfoAsync(GetEmptyList(numFlats, 2), Sheets.WerSpreadSheetId, $"{houseNum}!D9:E{8 + numFlats}");
-                await sheets.WriteInfoAsync(GetListDoubles(debitAndCredit), Sheets.WerSpreadSheetId, $"{houseNum}!D9:E{8 + numFlats}");
-
-                // Dublicate last values
-                var lastValues = await sheets.ReadInfoAsync(Sheets.WerSpreadSheetId, $"{houseNum}!H9:H{8 + numFlats}");
-                await sheets.WriteInfoAsync(GetListDoubles(lastValues, 3), Sheets.WerSpreadSheetId, $"{houseNum}!I9:I{8 + numFlats}");
-
-                // Clear payments
-                await sheets.WriteInfoAsync(GetEmptyList(numFlats, 2), Sheets.WerSpreadSheetId, $"{houseNum}!O9:P{8 + numFlats}");
-
-                // Clear privileges
-                await sheets.WriteInfoAsync(GetEmptyList(numFlats, 1), Sheets.WerSpreadSheetId, $"{houseNum}!M9:M{8 + numFlats}");
-
-                //Change month
-                await sheets.WriteInfoAsync(month, Sheets.WerSpreadSheetId, $"{houseNum}!I2:J2");
-
-
-                // Change debit and credit
-                var debitAndCredit2 = await sheets.ReadInfoAsync(Sheets.HeatingSpreadSheetId, $"{houseNum}!P9:Q{8 + numFlats}");
-                await sheets.WriteInfoAsync(GetEmptyList(numFlats, 2), Sheets.HeatingSpreadSheetId, $"{houseNum}!D9:E{8 + numFlats}");
-                await sheets.WriteInfoAsync(GetListDoubles(debitAndCredit2), Sheets.HeatingSpreadSheetId, $"{houseNum}!D9:E{8 + numFlats}");
-
-                // Dublicate last values
-                var lastValues2 = await sheets.ReadInfoAsync(Sheets.HeatingSpreadSheetId, $"{houseNum}!H9:H{8 + numFlats}");
-                await sheets.WriteInfoAsync(GetListDoubles(lastValues2, 3), Sheets.HeatingSpreadSheetId, $"{houseNum}!I9:I{8 + numFlats}");
-
-                // Clear payments
-                await sheets.WriteInfoAsync(GetEmptyList(numFlats, 2), Sheets.HeatingSpreadSheetId, $"{houseNum}!N9:O{8 + numFlats}");
-
-                // Clear privileges
-                await sheets.WriteInfoAsync(GetEmptyList(numFlats, 1), Sheets.HeatingSpreadSheetId, $"{houseNum}!L9:L{8 + numFlats}");
-
-                //Change month
-                await sheets.WriteInfoAsync(month, Sheets.HeatingSpreadSheetId, $"{houseNum}!I2:J2");
+                UpdateInfo($"Переход на новый месяц дома {serviceContext.Houses[i].ShortAdress} ...");
+                await serviceContext.Houses[i].TransitionToNewMonth(month);
             }
-            await sheets.WriteInfoAsync(month, Sheets.WerSpreadSheetId, $"Сводная ведомость!H2");
-            await sheets.WriteInfoAsync(month, Sheets.HeatingSpreadSheetId, $"Сводная ведомость!H2");
+            await sheets.UpdateGeneralMonthAsync(new List<IList<object>> { new List<object> { month, DateTime.Now.Year } });
+        }
 
-            await sheets.WriteInfoAsync(year, Sheets.WerSpreadSheetId, $"Сводная ведомость!I2");
-            await sheets.WriteInfoAsync(year, Sheets.HeatingSpreadSheetId, $"Сводная ведомость!I2");
-        }
-        private static IList<IList<object>> GetListDoubles(IList<IList<object>> info, int digits = 2)
-        {
-            for (int i = 0; i < info.Count; i++)
-            {
-                for (int j = 0; j < info[i].Count; j++)
-                {
-                    info[i][j] = info[i][j].ToDouble(digits);
-                }
-            }
-            return info;
-        }
-        private static IList<IList<object>> GetEmptyList(int rows, int colomns)
-        {
-            var list = new List<IList<object>>();
-            for (int i = 0; i < rows; i++)
-            {
-                list.Add(new List<object>());
-                for (int j = 0; j < colomns; j++)
-                {
-                    list[i].Add(0);
-                }
-            }
-            return list;
-        }
         private static void UpdateInfo(string message)
         {
             UpdateProgress(++_processIndicator * _interval, message);

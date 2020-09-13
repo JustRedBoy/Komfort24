@@ -32,26 +32,25 @@ namespace Desktop.ViewModels
         {
             get
             {
-                return _transitionCommand ??
-                  (_transitionCommand = new RelayCommand(async obj =>
-                  {
-                      try
-                      {
-                          TransitionToNewMonthCommand.UpdateProgress += UpdateProgress;
-                          bool isSuccessful = await TransitionToNewMonthCommand.StartTransitionAsync();
-                          TransitionCompleted(isSuccessful ? "Все операции были успешно выполнены!" 
-                              : "Переход на новый месяц уже был выполнен в этом месяце!");
-                      }
-                      catch (Exception e)
-                      {
-                          TransitionCompleted("Произошла ошибка, повторите операцию! " + e.Message);
-                      }
-                      finally
-                      {
-                          RelayCommand.RaiseCanExecuteChanged();
-                      }
-                  },                
-                  obj => !AppViewModel.IsAnyProcessing()));
+                return _transitionCommand ??= new RelayCommand(async obj =>
+                {
+                    try
+                    {
+                        TransitionToNewMonthCommand.UpdateProgress += UpdateProgress;
+                        bool isSuccessful = await TransitionToNewMonthCommand.StartTransitionAsync();
+                        TransitionCompleted(isSuccessful ? "Все операции были успешно выполнены!"
+                            : "Переход на новый месяц уже был выполнен в этом месяце!");
+                    }
+                    catch (Exception e)
+                    {
+                        TransitionCompleted("Произошла ошибка, повторите операцию! " + e.Message);
+                    }
+                    finally
+                    {
+                        RelayCommand.RaiseCanExecuteChanged();
+                    }
+                },                
+                obj => !AppViewModel.IsAnyProcessing());
             }
         }
 
@@ -61,6 +60,7 @@ namespace Desktop.ViewModels
             TransitionInfo = message;     
             TransitionToNewMonthCommand.UpdateProgress -= UpdateProgress;
         }
+
         private void UpdateProgress(double value, string message)
         {
             TransitionProgressValue = value;

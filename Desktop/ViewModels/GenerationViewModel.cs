@@ -53,40 +53,38 @@ namespace Desktop.ViewModels
         {
             get
             {
-                return _generationCommand ??
-                  (_generationCommand = new RelayCommand(async obj =>
-                  {
-                      if (!GenerationFlyersCommand.Processing)
-                      {
-                          try
-                          {
-                              GenerationButtonText = "Отменить";
-                              GenerationInfo = "Подготовка к созданию листовок ...";
-                              IsGenerationEnabled = false;
-                              GenerationFlyersCommand.UpdateProgress += UpdateProgress;
-                              bool isSuccessful = await GenerationFlyersCommand.StartGenerationAsync();
-                              GenerationCompleted(isSuccessful ? "Генерация листовок завершена":
-                                  "Генерация листовок отменена");
-                          }
-                          catch (Exception e)
-                          {
-                              GenerationCompleted("Произошла ошибка, повторите операцию! " + e.Message);
-                          }
-                          finally
-                          {
-                              RelayCommand.RaiseCanExecuteChanged();
-                          }
-                      }
-                      else
-                      {
-                          GenerationInfo = "Отмена генерации ...";
-                          IsGenerationEnabled = false;
-                          GenerationFlyersCommand.CancelGeneration();
-                      }
-                  },
-                  obj => (!TransitionToNewMonthCommand.Processing &&
-                          !PrintReportsCommand.Processing) || GenerationFlyersCommand.Processing
-                  ));
+                return _generationCommand ??= new RelayCommand(async obj =>
+                {
+                    if (!GenerationFlyersCommand.Processing)
+                    {
+                        try
+                        {
+                            GenerationButtonText = "Отменить";
+                            GenerationInfo = "Подготовка к созданию листовок ...";
+                            IsGenerationEnabled = false;
+                            GenerationFlyersCommand.UpdateProgress += UpdateProgress;
+                            bool isSuccessful = await GenerationFlyersCommand.StartGenerationAsync();
+                            GenerationCompleted(isSuccessful ? "Генерация листовок завершена" :
+                                "Генерация листовок отменена");
+                        }
+                        catch (Exception e)
+                        {
+                            GenerationCompleted("Произошла ошибка, повторите операцию! " + e.Message);
+                        }
+                        finally
+                        {
+                            RelayCommand.RaiseCanExecuteChanged();
+                        }
+                    }
+                    else
+                    {
+                        GenerationInfo = "Отмена генерации ...";
+                        IsGenerationEnabled = false;
+                        GenerationFlyersCommand.CancelGeneration();
+                    }
+                },
+                obj => (!TransitionToNewMonthCommand.Processing &&!PrintReportsCommand.Processing) ||
+                        GenerationFlyersCommand.Processing);
             }
         }
 
@@ -102,6 +100,7 @@ namespace Desktop.ViewModels
                 GenerationInfo = $"Создание листовок ... {Math.Round(value, 2)}%";
             }
         }
+
         private void GenerationCompleted(string message)
         {
             IsGenerationEnabled = true;

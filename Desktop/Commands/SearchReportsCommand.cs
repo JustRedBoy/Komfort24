@@ -1,51 +1,65 @@
 ﻿using GoogleLib;
 using Models;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Tools;
 
 namespace Desktop.Commands
 {
     internal static class SearchReportsCommand
     {
         internal static bool Processing { get; set; } = false;
-        private static IList<IList<object>> Info { get; set; } = null;
+        private static IList<IList<object>> ArchiveReportsInfo { get; set; } = null;
 
         /// <summary>
-        /// Starting the reports search process
+        /// Starting the archive reports search process
         /// </summary>
         /// <param name="accountId">Account to search reports</param>
-        /// <returns></returns>
-        internal static async Task<List<Report>> SearchAsync(string accountId)
+        /// <returns>List of achive reports</returns>
+        internal static async Task<List<ArchiveReport>> SearchAsync(string accountId)
         {
             Processing = true;
             try
             {
-                List<Report> reports = null;
-                Regex regex = new Regex(@"(\d{4}$)|(\d{4}/[1|2]$)"); // 4 digits or 4 digits with /1 or /2
-                MatchCollection matches = regex.Matches(accountId);
-                if (matches.Count > 0)
+                if (Matching.IsAccountId(accountId))
                 {
-                    if (Info == null)
+                    if (ArchiveReportsInfo == null)
                     {
                         GoogleSheets googleSheets = new GoogleSheets();
-                        Info = await googleSheets.GetReportsAsync();
+                        ArchiveReportsInfo = await googleSheets.GetArchiveReportsInfoAsync();
                     }
-                    reports = new List<Report>();
-                    foreach (var item in Info)
+                    List<ArchiveReport> reports = new List<ArchiveReport>();
+                    foreach (var item in ArchiveReportsInfo)
                     {
                         if (item[1].ToString() == accountId)
                         {
-                            reports.Add(new Report(item));
+                            reports.Add(new ArchiveReport(item));
                         }
                     }
+                    return reports;
                 }
-                return reports;
+                return null;
             }
             finally
             {
                 Processing = false;
             }
+        }
+
+        /// <summary>
+        /// Сlear stored reports information
+        /// </summary>
+        internal static void ClearReportsInfo()
+        {
+            ArchiveReportsInfo = null;
+        }
+
+        /// <summary>
+        /// Сheck the existence of reports information
+        /// </summary>
+        internal static bool HaveReportsInfo()
+        {
+            return ArchiveReportsInfo != null;
         }
     }
 }

@@ -1,8 +1,10 @@
 ﻿using Microsoft.Office.Interop.Word;
-using Tools;
+using Tools.Extensions;
 using System;
 using System.Collections.Generic;
 using Desktop.Models;
+using Models;
+using Tools;
 
 namespace Desktop.Tools
 {
@@ -29,40 +31,49 @@ namespace Desktop.Tools
             doc.Content.Font.Name = "Calibri";
             return doc;
         }
+
         internal Document CreateDocument()
         {
             return Application.Documents.Add();
         }
+
         internal Document OpenDocument(string path, bool isReadonly = false)
         {
             return Application.Documents.Open(path, ReadOnly: isReadonly);
         }
+
         internal void SaveDocumentAs(Document doc, string path)
         {
             doc.SaveAs(path);
         }
+
         internal void SaveDocument(Document doc)
         {
             doc.Save();
         }
+
         internal void CopyDocument(string sourceFile, string copiedFile)
         {
             Document doc = Application.Documents.Open(sourceFile, ReadOnly: true);
             doc.SaveAs(copiedFile);
             doc.Close();
         }
+
         internal void PrintDocument(Document doc)
         {
             doc.PrintOut();
         }
+
         internal void CloseDocument(Document doc)
         {
             doc.Close();
         }
+
         internal void Quit()
         {
             Application.Quit();
         }
+
         internal void FormationReportsDocument(Document doc, List<PrintReport> printReports)
         {
             CreateTemplateReportsTable(doc);
@@ -82,6 +93,7 @@ namespace Desktop.Tools
             content.SetRange(content.End, content.End);
             content.Text = "\n\nБухгалтер ЧП СК Комфорт Одесса              Крепак Н.В.";
         }
+
         private void FormingReport(Document doc, PrintReport printReport)
         {
             Paste(doc, false);
@@ -97,43 +109,46 @@ namespace Desktop.Tools
             WordReplace(doc, "{WSE}", printReport.WerStateEnd);
             WordReplace(doc, "{DT}", printReport.MonthAndYear);
         }
-        internal void FormationFlayer(Document doc, IList<object> info, IList<object> rates, string house)
+
+        internal void FormationFlayer(Document doc, Account account, Rates rates)
         {
             Paste(doc);
-            WordReplace(doc, "{NM}", info[2]);
-            WordReplace(doc, "{AD}", info[1]);
-            WordReplace(doc, "{MT}", rates[6]);
-            WordReplace(doc, "{FA}", $"ул. Пишоновская, {house} кв. {info[0]}");
+            WordReplace(doc, "{NM}", account.Owner);
+            WordReplace(doc, "{AD}", account.AccountId);
+            WordReplace(doc, "{MT}", Date.GetNamePrevMonth());
+            WordReplace(doc, "{FA}", account.House.FullAdress + $" кв. {account.FlatNumber}");
             WordReplace(doc, "{MS}", Date.GetShortMonth(DateTime.Now.AddMonths(-1).Month));
             WordReplace(doc, "{ME}", Date.GetShortMonth(DateTime.Now.Month));
             WordReplace(doc, "{YS}", Date.GetShortYear(DateTime.Now.AddMonths(-1).Year));
             WordReplace(doc, "{YE}", Date.GetShortYear(DateTime.Now.Year));
-            WordReplace(doc, "{HSS}", Math.Round(info[3].ToDouble() - info[4].ToDouble(), 2)); // debet - credit
-            WordReplace(doc, "{CHV}", string.IsNullOrEmpty(info[6].ToString()) ? "-" : info[7].ToString()); // - or value
-            WordReplace(doc, "{PHV}", string.IsNullOrEmpty(info[6].ToString()) ? "-" : info[8].ToString()); // - or value
-            WordReplace(doc, "{HV}", string.IsNullOrEmpty(info[6].ToString()) ? "-" : info[9].ToString()); // - or value
-            WordReplace(doc, "{HR}", string.IsNullOrEmpty(info[6].ToString()) ? rates[1] : rates[2]); // central or custom
-            WordReplace(doc, "{FH}", Math.Round(info[10].ToDouble() - info[11].ToDouble(), 2)); // forHeating - privileges
-            WordReplace(doc, "{HP}", Math.Round(info[13].ToDouble() + info[14].ToDouble(), 2)); // cashbox + bank
-            WordReplace(doc, "{HSE}", Math.Round(info[15].ToDouble() - info[16].ToDouble(), 2)); // debet - credit
-            WordReplace(doc, "{WRSS}", Math.Round(info[17].ToDouble() - info[18].ToDouble(), 2)); // debet - credit
-            string flatNumber = info[0].ToString();
-            WordReplace(doc, "{WRR}", (flatNumber.Contains('/') ? flatNumber[0..^2] : flatNumber).ToInt() < 7 ? rates[4] : rates[3]); // special or general
-            WordReplace(doc, "{FWR}", Math.Round(info[20].ToDouble() - info[26].ToDouble(), 2)); // forWer - privileges
-            WordReplace(doc, "{WRP}", Math.Round(info[28].ToDouble() + info[29].ToDouble() - info[24].ToDouble(), 2)); // cashbox + bank - forWater
-            WordReplace(doc, "{WRSE}", Math.Round(info[30].ToDouble() - info[31].ToDouble(), 2)); // debet - credit
-            WordReplace(doc, "{CWV}", info[21].ToDouble()); // current water value
-            WordReplace(doc, "{PWV}", info[22].ToDouble()); // prev water value
-            WordReplace(doc, "{WV}", info[23].ToDouble());  // water value
-            WordReplace(doc, "{WTR}", rates[0]); // water rate
-            WordReplace(doc, "{FWT}", info[24].ToDouble()); // for water
-            WordReplace(doc, "{WTP}", info[24].ToDouble()); // water payment
+            var currentReport = account.CurrentReport;
+            WordReplace(doc, "{HSS}", Math.Round(currentReport.HeatingStartDebit - currentReport.HeatingStartCredit, 2)); // debet - credit
+            WordReplace(doc, "{CHV}", string.IsNullOrEmpty(currentReport.HeatingType) ? "-" : currentReport.HeatingCurrentValue.ToString()); // - or value
+            WordReplace(doc, "{PHV}", string.IsNullOrEmpty(currentReport.HeatingType) ? "-" : currentReport.HeatingPreviousValue.ToString()); // - or value
+            WordReplace(doc, "{HV}", string.IsNullOrEmpty(currentReport.HeatingType) ? "-" : currentReport.HeatingValue.ToString()); // - or value
+            WordReplace(doc, "{HR}", string.IsNullOrEmpty(currentReport.HeatingType) ? rates.CentralHeatingRate : rates.CustomHeatingRate); // central or custom
+            WordReplace(doc, "{FH}", Math.Round(currentReport.HeatingForService - currentReport.HeatingPreviliges, 2)); // forHeating - privileges
+            WordReplace(doc, "{HP}", Math.Round(currentReport.HeatingCash + currentReport.HeatingBank, 2)); // cashbox + bank
+            WordReplace(doc, "{HSE}", Math.Round(currentReport.HeatingEndDebit - currentReport.HeatingEndCredit, 2)); // debet - credit
+            WordReplace(doc, "{WRSS}", Math.Round(currentReport.WerStartDebit - currentReport.WerStartCredit, 2)); // debet - credit
+            string flatNumber = account.FlatNumber.Contains('/') ? account.FlatNumber[0..^2] : account.FlatNumber;
+            WordReplace(doc, "{WRR}", flatNumber.ToInt() < 7 ? rates.SpecialWerRate : rates.GeneralWerRate); // special or general
+            WordReplace(doc, "{FWR}", Math.Round(currentReport.WerForMonth - currentReport.WerPreviliges, 2)); // forWer - privileges
+            WordReplace(doc, "{WRP}", Math.Round(currentReport.WerCash + currentReport.WerBank - currentReport.WaterForMonth, 2)); // cashbox + bank - forWater
+            WordReplace(doc, "{WRSE}", Math.Round(currentReport.WerEndDebit - currentReport.WerEndCredit, 2)); // debet - credit
+            WordReplace(doc, "{CWV}", currentReport.WaterCurrentValue); // current water value
+            WordReplace(doc, "{PWV}", currentReport.WaterPreviousValue); // prev water value
+            WordReplace(doc, "{WV}", currentReport.WaterValue);  // water value
+            WordReplace(doc, "{WTR}", rates.WaterRate); // water rate
+            WordReplace(doc, "{FWT}", currentReport.WaterForMonth); // for water
+            WordReplace(doc, "{WTP}", currentReport.WaterForMonth); // water payment
             WordReplace(doc, "{GSS}", "-");
             WordReplace(doc, "{GR}", "-");
             WordReplace(doc, "{FG}", "-");
             WordReplace(doc, "{GP}", "-");
             WordReplace(doc, "{GSE}", "-");
         }
+
         private void CreateTemplateReportsTable(Document doc)
         {
             doc.PageSetup.LeftMargin = 50f;
@@ -197,6 +212,7 @@ namespace Desktop.Tools
                 table.Cell(1, 1).Merge(table.Cell(1, 2));
             }
         }
+
         private void Paste(Document doc, bool start = true)
         {
             Microsoft.Office.Interop.Word.Range range = doc.Content;
@@ -211,6 +227,7 @@ namespace Desktop.Tools
             range.Select();
             Application.Selection.Paste();
         }
+
         private void WordReplace(Document doc, string replace, object replaceWith)
         {
             doc.Content.Find.Execute(FindText: replace, ReplaceWith: replaceWith);

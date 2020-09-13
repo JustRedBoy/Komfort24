@@ -1,10 +1,8 @@
 ﻿using Desktop.Commands;
-using Desktop.Models;
 using Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Desktop.ViewModels
@@ -45,34 +43,36 @@ namespace Desktop.ViewModels
                 OnPropertyChanged("FoundReportsVisibility");
             }
         }
-        public ObservableCollection<Report> Reports { get; set; } = new ObservableCollection<Report>();
+        public ObservableCollection<ArchiveReport> Reports { get; set; } = new ObservableCollection<ArchiveReport>();
 
         private RelayCommand _searchCommand;
         public RelayCommand SearchCommand
         {
             get
             {
-                return _searchCommand ??
-                  (_searchCommand = new RelayCommand(async obj =>
-                  {
-                      try
-                      {
-                          var reports = await SearchReportsCommand.SearchAsync(AccountId);
-                          SearchCompleted(reports, "Не правильный формат");
-                      }
-                      catch (Exception e)
-                      {
-                          SearchCompleted(null, e.Message);
-                      }
-                      finally
-                      {
-                          RelayCommand.RaiseCanExecuteChanged();
-                      }
-                  },
-                  obj => !TransitionToNewMonthCommand.Processing &&
-                         !SearchReportsCommand.Processing &&
-                         !PrintReportsCommand.Processing
-                  ));
+                return _searchCommand ??= new RelayCommand(async obj =>
+                {
+                    try
+                    {
+                        if (!SearchReportsCommand.HaveReportsInfo())
+                        {
+                            SearchInfo = "Загрузка информации ...";
+                        }
+                        var reports = await SearchReportsCommand.SearchAsync(AccountId);
+                        SearchCompleted(reports);
+                    }
+                    catch (Exception e)
+                    {
+                        SearchCompleted(null, e.Message);
+                    }
+                    finally
+                    {
+                        RelayCommand.RaiseCanExecuteChanged();
+                    }
+                },
+                obj => !TransitionToNewMonthCommand.Processing &&
+                       !SearchReportsCommand.Processing &&
+                       !PrintReportsCommand.Processing);
             }
         }
 
@@ -81,58 +81,54 @@ namespace Desktop.ViewModels
         {
             get
             {
-                return _printCommand ??
-                  (_printCommand = new RelayCommand(async obj =>
-                  {
-                      try
-                      {
-                          await Task.Run(() => PrintReportsCommand.Print(Reports));
-                      }
-                      catch (Exception e)
-                      {
-                          SearchInfo = "Не удается распечатать файл. " + e.Message;
-                      }
-                      finally
-                      {
-                          RelayCommand.RaiseCanExecuteChanged();
-                      }
-                  },
-                  obj => !AppViewModel.IsAnyProcessing() && Reports.Count > 0));
+                return _printCommand ??= new RelayCommand(async obj =>
+                {
+                    try
+                    {
+                        await Task.Run(() => PrintReportsCommand.Print(Reports));
+                    }
+                    catch (Exception e)
+                    {
+                        SearchInfo = "Не удается распечатать файл. " + e.Message;
+                    }
+                    finally
+                    {
+                        RelayCommand.RaiseCanExecuteChanged();
+                    }
+                },
+                obj => !AppViewModel.IsAnyProcessing() && Reports.Count > 0);
             }
         }
 
-        private void SearchCompleted(List<Report> reports, string errorMessage = "")
+        private void SearchCompleted(List<ArchiveReport> reports, string errorMessage = null)
         {
             if (reports != null)
             {
                 if (reports.Count > 0)
                 {
-                    string name = string.IsNullOrEmpty(reports[0].Owner) ?
+                    string owner = string.IsNullOrEmpty(reports[0].Owner) ?
                        "\"Имя владельца\"" : reports[0].Owner;
-                    SearchInfo = $"{name} (лицевой счет: {AccountId})";
+                    SearchInfo = $"{owner} (лицевой счет: {AccountId})";
                     FoundReportsVisibility = 0;
                     UpdateReports(reports);
+                    return;
                 }
-                else
-                {
-                    SearchInfo = "Записи не найдены";
-                    UpdateReports(null);
-                    FoundReportsVisibility = 2;
-                }
+                SearchInfo = "Записи не найдены";
             }
             else
             {
-                SearchInfo = errorMessage;
-                UpdateReports(null);
-                FoundReportsVisibility = 2;
+                SearchInfo = errorMessage ?? "Не правильный формат";
             }
+            UpdateReports(null);
+            FoundReportsVisibility = 2;
         }
-        private void UpdateReports(List<Report> reports)
+
+        private void UpdateReports(List<ArchiveReport> reports)
         {
             Reports.Clear();
             if (reports != null && reports.Count > 0)
             {
-                foreach (Report report in reports)
+                foreach (ArchiveReport report in reports)
                 {
                     Reports.Add(report);
                 }
