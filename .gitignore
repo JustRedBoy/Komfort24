@@ -11,6 +11,7 @@
 *.sln.docstates
 google-credentials.json
 client_secret.json
+auth/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

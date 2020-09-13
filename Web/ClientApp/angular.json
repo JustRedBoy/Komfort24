@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "projects": {
+    "komfort-web-app": {
+      "projectType": "application",
+      "root": "",
+      "sourceRoot": "src",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist",
+            "index": "src/index.html",
+            "main": "src/main.ts",
+            "polyfills": "src/polyfills.ts",
+            "tsConfig": "tsconfig.json"
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "namedChunks": false,
+              "vendorChunk": false,
+              "aot": true,
+              "extractLicenses": true,
+              "buildOptimizer": true
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "komfort-web-app:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "komfort-web-app:build:production"
+            }
+          }
+        }
+      }
+    }
+  },
+  "defaultProject": "komfort-web-app"
+}

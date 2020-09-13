@@ -18,8 +18,8 @@ namespace GoogleLib
         {
             return new SheetsService(new BaseClientService.Initializer()
             {
-                HttpClientInitializer = GetUserCredential(SheetsService.Scope.Spreadsheets),
-                ApplicationName = _appName,
+                HttpClientInitializer = GetUserCredential(SheetsService.Scope.SpreadsheetsReadonly),
+                ApplicationName = _appName
             });
         }
 
@@ -28,7 +28,7 @@ namespace GoogleLib
             return new DriveService(new BaseClientService.Initializer()
             {
                 HttpClientInitializer = GetUserCredential(DriveService.Scope.Drive, SheetsService.Scope.Spreadsheets),
-                ApplicationName = _appName,
+                ApplicationName = _appName
             });
         }
 
