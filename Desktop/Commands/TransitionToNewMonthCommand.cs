@@ -78,8 +78,7 @@ namespace Desktop.Commands
             UpdateInfo("Создание отдельной папки для файлов ...");
             string folderId = await drive.CreateFolderAsync(Date.GetFullPrevMonth());
             UpdateInfo("Копирование файлов в отдельную папку ...");
-            await drive.CopyFileAsync(Sheets.HeatingSpreadSheetId, $"Ведомость О ({Date.GetFullPrevMonth()})", folderId);
-            await drive.CopyFileAsync(Sheets.WerSpreadSheetId, $"Ведомость СД ({Date.GetFullPrevMonth()})", folderId);
+            await drive.CopyAllFilesAsync(folderId);
         }
 
         private static async Task AddReportsToArchive(GoogleSheets sheets, ServiceContext serviceContext)

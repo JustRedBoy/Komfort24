@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using GoogleLib.Exceptions;
+using Tools;
 
 namespace GoogleLib
 {
@@ -66,7 +67,7 @@ namespace GoogleLib
         }
 
         /// <summary>
-        /// Copy files to special folder
+        /// Copy file to special folder
         /// </summary>
         /// <param name="originFileId">File ID to copy</param>
         /// <param name="copyName">Copied file name</param>
@@ -87,6 +88,17 @@ namespace GoogleLib
             {
                 throw AccessDeniedException.CreateException(e);
             }
+        }
+
+        /// <summary>
+        /// Copy files to special folder
+        /// </summary>
+        /// <param name="folderId">Folder to copy files</param>
+        /// <returns></returns>
+        public async Task CopyAllFilesAsync(string folderId)
+        {
+            await CopyFileAsync(Sheets.HeatingSpreadSheetId, $"Ведомость О ({Date.GetFullPrevMonth()})", folderId);
+            await CopyFileAsync(Sheets.WerSpreadSheetId, $"Ведомость СД ({Date.GetFullPrevMonth()})", folderId);
         }
     }
 }
