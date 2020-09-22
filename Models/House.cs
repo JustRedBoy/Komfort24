@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Tools;
 
 namespace Models
@@ -6,9 +7,12 @@ namespace Models
     public class House
     {
         public string FullAdress { get => "Пишоновская, " + ShortAdress; }
+        [JsonIgnore]
         public string ShortAdress { get; }
-        public List<Account> Accounts { get; private set; }
+        [JsonIgnore]
+        public List<Account> Accounts { get; }
         public Rates Rates { get; set; }
+        [JsonIgnore]
         public int FlatCount { get; }
 
         public House(string shortAdress, IEnumerable<IList<object>> accounts, IList<object> rates)
@@ -24,39 +28,6 @@ namespace Models
             }
             Rates = new Rates(rates);
             FlatCount = Accounts.Count;
-        }
-
-        /// <summary>
-        /// Сlear stored accounts
-        /// </summary>
-        public void ClearAccounts()
-        {
-            Accounts = null;
-        }
-
-        /// <summary>
-        /// Check the existence of account in currect house
-        /// </summary>
-        /// <param name="accountId">Account ID for check</param>
-        /// <param name="account">Account or null</param>
-        public bool HaveAccount(string accountId, out Account account)
-        {
-            int start = int.Parse(Accounts[0].AccountId);
-            int end = int.Parse(Accounts[^1].AccountId);
-            int numAccount = int.Parse(accountId.Substring(0, 4));
-            account = null;
-            if (numAccount >= start && numAccount <= end)
-            {
-                foreach (var acc in Accounts)
-                {
-                    if (acc.AccountId == accountId)
-                    {
-                        account = acc;
-                    }
-                }
-                return true;
-            }
-            return false;
         }
     }
 }

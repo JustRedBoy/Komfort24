@@ -91,7 +91,7 @@ namespace Desktop.Tools
 
             Microsoft.Office.Interop.Word.Range content = doc.Content;
             content.SetRange(content.End, content.End);
-            content.Text = "\n\nБухгалтер ЧП СК Комфорт Одесса              Крепак Н.В.";
+            content.Text = "\nБухгалтер ЧП СК Комфорт Одесса              Крепак Н.В.";
         }
 
         private void FormingReport(Document doc, PrintReport printReport)
@@ -163,29 +163,29 @@ namespace Desktop.Tools
             table.Borders.InsideLineStyle = WdLineStyle.wdLineStyleSingle;
             table.Borders.OutsideLineStyle = WdLineStyle.wdLineStyleSingle;
 
-            table.Cell(1, 1).Width = 45f;
-            table.Cell(1, 2).Width = 55f;
-            table.Cell(1, 3).Width = 45f;
+            table.Cell(1, 1).Width = 43f;
+            table.Cell(1, 2).Width = 45f;
+            table.Cell(1, 3).Width = 55f;
             table.Cell(1, 4).Width = 45f;
             table.Cell(1, 5).Width = 45f;
             table.Cell(1, 6).Width = 45f;
-            table.Cell(1, 7).Width = 50f;
-            table.Cell(1, 8).Width = 45f;
+            table.Cell(1, 7).Width = 45f;
+            table.Cell(1, 8).Width = 50f;
             table.Cell(1, 9).Width = 45f;
-            table.Cell(1, 10).Width = 55f;
-            table.Cell(1, 11).Width = 43f;
+            table.Cell(1, 10).Width = 45f;
+            table.Cell(1, 11).Width = 55f;
 
-            table.Cell(1, 1).Range.Text = "{HSS}";
-            table.Cell(1, 2).Range.Text = "{WSS}";
-            table.Cell(1, 3).Range.Text = "{FH}";
-            table.Cell(1, 4).Range.Text = "{FWR}";
-            table.Cell(1, 5).Range.Text = "{FWT}";
-            table.Cell(1, 6).Range.Text = "{HP}";
-            table.Cell(1, 7).Range.Text = "{WRP}";
-            table.Cell(1, 8).Range.Text = "{WTP}";
-            table.Cell(1, 9).Range.Text = "{HSE}";
-            table.Cell(1, 10).Range.Text = "{WSE}";
-            table.Cell(1, 11).Range.Text = "{DT}";
+            table.Cell(1, 1).Range.Text = "{DT}";
+            table.Cell(1, 2).Range.Text = "{HSS}";
+            table.Cell(1, 3).Range.Text = "{WSS}";
+            table.Cell(1, 4).Range.Text = "{FH}";
+            table.Cell(1, 5).Range.Text = "{FWR}";
+            table.Cell(1, 6).Range.Text = "{FWT}";
+            table.Cell(1, 7).Range.Text = "{HP}";
+            table.Cell(1, 8).Range.Text = "{WRP}";
+            table.Cell(1, 9).Range.Text = "{WTP}";
+            table.Cell(1, 10).Range.Text = "{HSE}";
+            table.Cell(1, 11).Range.Text = "{WSE}";
 
             for (int i = 1; i <= 11; i++)
             {
@@ -194,17 +194,17 @@ namespace Desktop.Tools
 
             table.Rows.Add(table.Rows[1]);
             table.Rows[1].Range.Font.Bold = -1;
-            table.Cell(1, 1).Range.Text = "Долг1О";
-            table.Cell(1, 2).Range.Text = "Долг1СД+В";
-            table.Cell(1, 3).Range.Text = "ЗаО";
-            table.Cell(1, 4).Range.Text = "ЗаСД";
-            table.Cell(1, 5).Range.Text = "ЗаВ";
-            table.Cell(1, 6).Range.Text = "ОплатаО";
-            table.Cell(1, 7).Range.Text = "ОплатаСД";
-            table.Cell(1, 8).Range.Text = "ОплатаВ";
-            table.Cell(1, 9).Range.Text = "Долг2О";
-            table.Cell(1, 10).Range.Text = "Долг2СД+В";
-            table.Cell(1, 11).Range.Text = "Месяц";
+            table.Cell(1, 1).Range.Text = "Месяц";
+            table.Cell(1, 2).Range.Text = "Отопл. итого на начало месяца";
+            table.Cell(1, 3).Range.Text = "Кв-та итого на начало месяца";
+            table.Cell(1, 4).Range.Text = "Начисл. за отопл.";
+            table.Cell(1, 5).Range.Text = "Начисл. за кв-ту";
+            table.Cell(1, 6).Range.Text = "Начисл. за воду";
+            table.Cell(1, 7).Range.Text = "Оплата отопл.";
+            table.Cell(1, 8).Range.Text = "Оплата кв-та";
+            table.Cell(1, 9).Range.Text = "Оплата холод. вода";
+            table.Cell(1, 10).Range.Text = "Отопл. итого к оплате";
+            table.Cell(1, 11).Range.Text = "Кв-та итого к оплате";
 
             table.Rows.Add(table.Rows[1]);
             for (int i = 0; i < 10; i++)

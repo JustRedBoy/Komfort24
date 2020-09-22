@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Tools;
 
 namespace Models
 {
@@ -49,11 +50,15 @@ namespace Models
         /// <returns>Account or null</returns>
         public Account GetAccountById(string accountId)
         {
-            foreach (var house in Houses)
+            if (Matching.IsAccountId(accountId))
             {
-                if (house.HaveAccount(accountId, out Account account))
+                foreach (var house in Houses)
                 {
-                    return account;
+                    var account = house.Accounts.FirstOrDefault(a => a.AccountId == accountId);
+                    if (account != null)
+                    {
+                        return account;
+                    }
                 }
             }
             return null;
