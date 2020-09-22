@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Models;
-using Tools;
 
 namespace Web.Controllers
 {
@@ -18,13 +17,7 @@ namespace Web.Controllers
         [HttpGet]
         public Account GetAccount(string accountId)
         {
-            if (Matching.IsAccountId(accountId))
-            {
-                Account account = _serviceContext.GetAccountById(accountId);
-                account.House.ClearAccounts();
-                return account;
-            }
-            return null;
+            return _serviceContext.GetAccountById(accountId);
         }
     }
 }

@@ -1,0 +1,33 @@
+﻿export class Report {
+    constructor(
+        public heatingStartDebit: number,
+        public heatingStartCredit: number,
+        public heatingSquare: number,
+        public heatingType: string,
+        public heatingCurrentValue: number,
+        public heatingPreviousValue: number,
+        public heatingValue: number,
+        public heatingForService: number,
+        public heatingPreviliges: number,
+        public heatingTotal: number,
+        public heatingCash: number,
+        public heatingBank: number,
+        public heatingEndDebit: number,
+        public heatingEndCredit: number,
+
+        public werStartDebit: number,
+        public werStartCredit: number,
+        public werSquare: number,
+        public werForMonth: number,
+        public waterCurrentValue: number,
+        public waterPreviousValue: number,
+        public waterValue: number,
+        public waterForMonth: number,
+        public werWaterForService: number,
+        public werPreviliges: number,
+        public werTotal: number,
+        public werCash: number,
+        public werBank: number,
+        public werEndDebit: number,
+        public werEndCredit: number) { }
+}

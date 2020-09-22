@@ -1,0 +1,96 @@
+﻿found {
+    margin-top: 25px;
+}
+
+.search {
+    margin: auto;
+    width: 100%;
+    margin-top: 120px;
+    text-align: center;
+    transition: margin 700ms;
+}
+
+.search-string {
+    width: 50%;
+    margin: auto;
+}
+
+.hidden {
+    display: none;
+}
+
+.center {
+    width: 85%;
+    margin: auto;
+}
+
+.custom-margin {
+    margin: 5px 10px 5px 10px;
+}
+
+.custom-margin-top {
+    margin-top: 25px;
+}
+
+.custom-border {
+    border-radius: 10px;
+    border: 2px solid #ddd
+}
+
+.table-title {
+    font-size: 19px;
+    padding: 5px;
+}
+
+table#values td, th {
+    vertical-align: middle !important;
+}
+
+.input-values {
+    margin: auto;
+    width: 100%;
+    max-width: 200px;
+}
+
+    .input-values input {
+        text-align: center;
+    }
+
+        .input-values input:focus {
+            box-shadow: none !important;
+        }
+
+p#total {
+    font-weight: bold;
+    font-size: 150%;
+    margin: 30px 20px 20px 0px;
+    text-align: right;
+}
+
+.input-error {
+    color: red;
+    text-align: left;
+    font-size: 12px;
+    display: block;
+    margin-top: 3px;
+    display: none;
+}
+
+.input-values input:valid:not(:placeholder-shown) {
+    border-color: green;
+}
+
+.input-values input:invalid:not(:placeholder-shown) {
+    border-color: red;
+}
+
+    .input-values input:invalid:not(:placeholder-shown) + .form__error {
+        display: block;
+    }
+
+@media all and (max-width: 768px) {
+    table #values td, th {
+        vertical-align: middle !important;
+        width: 65%;
+    }
+}

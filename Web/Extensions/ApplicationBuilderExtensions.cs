@@ -11,9 +11,9 @@ namespace Web.Extensions
         {
             app.Use(async (context, next) =>
             {
-                GoogleSheets googleSheets = context.RequestServices.GetService<GoogleSheets>();
-                ServiceContext serviceContext = context.RequestServices.GetService<ServiceContext>();
-                await serviceContext.InitContextAsync(googleSheets);
+                //GoogleSheets googleSheets = context.RequestServices.GetService<GoogleSheets>();
+                //ServiceContext serviceContext = context.RequestServices.GetService<ServiceContext>();
+                //await serviceContext.InitContextAsync(googleSheets);
                 await next.Invoke();
             });
         }
