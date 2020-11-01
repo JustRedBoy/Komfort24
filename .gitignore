@@ -9,7 +9,6 @@
 *.user
 *.userosscache
 *.sln.docstates
-google-credentials.json
 client_secret.json
 auth/
 

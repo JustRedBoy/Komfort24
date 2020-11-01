@@ -15,10 +15,11 @@
 
 .f {
     height: initial;
+    align-self: start;
 }
 
 p {
-    margin: 0 0 2rem 0;
+    margin: 1rem 0 2rem 0;
 }
 
 p.highlight {
@@ -29,6 +30,12 @@ img {
     height: 100%;
     width: 100%;
     object-fit: cover;
+    object-position: top;
+}
+
+.logo {
+    width: 60%;
+    margin-top: 100px;
 }
 
 @media all and (min-width: 512px) and (max-width: 768px) {
@@ -43,6 +50,12 @@ img {
 
     .f {
         margin-top: 50px;
+    }
+
+    .logo {
+        height: 70px;
+        width: initial;
+        margin-top: 0;
     }
 }
 
@@ -63,5 +76,11 @@ img {
 
     .f {
         margin-top: 0px;
+    }
+
+    .logo {
+        height: 70px;
+        width: initial;
+        margin-top: 0;
     }
 }

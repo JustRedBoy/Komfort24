@@ -37,6 +37,7 @@ namespace Desktop.Commands
 
                 if (await TransitionCheck(drive))
                 {
+                    await Task.Run(() => CheckHeatingType(serviceContext));
                     await CreateFolderAndCopyFilesAsync(drive);
                     await AddReportsToArchive(sheets, serviceContext);
                     await CorrectFiles(sheets, serviceContext);
@@ -71,6 +72,22 @@ namespace Desktop.Commands
                 }
             }
             return true;
+        }
+
+        private static void CheckHeatingType(ServiceContext serviceContext)
+        {
+            foreach (House house in serviceContext.Houses)
+            {
+                foreach (Account account in house.Accounts)
+                {
+                    string type = account.CurrentReport.HeatingType.ToLower();
+                    if (type != "гкал" && type != "мвт" && type != "квт" && 
+                        type != "гдж" && type != "")
+                    {
+                        throw new Exception($"Необходимо исправить тип теплосчётчика в {account.House.ShortAdress} кв. {account.FlatNumber}");
+                    }
+                }
+            }
         }
 
         private static async Task CreateFolderAndCopyFilesAsync(GoogleDrive drive)
