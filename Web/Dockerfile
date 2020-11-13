@@ -12,6 +12,7 @@ WORKDIR /src
 COPY ["Web/Web.csproj", "Web/"]
 COPY ["Models/Models.csproj", "Models/"]
 COPY ["Tools/Tools.csproj", "Tools/"]
+COPY ["SheetsEF/SheetsEF.csproj", "SheetsEF/"]
 COPY ["GoogleLib/GoogleLib.csproj", "GoogleLib/"]
 RUN dotnet restore "Web/Web.csproj"
 COPY . .

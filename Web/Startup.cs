@@ -1,10 +1,11 @@
-using Web.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
+using Web.Models;
+using SheetsEF.Extensions;
 
 namespace Web
 {
@@ -19,8 +20,7 @@ namespace Web
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddGoogleSheetsService();
-            services.AddServiceContext();
+            services.AddSheetsContext<ApplicationContext>("0 0/5 * ? * * *");
             services.AddControllers();
             services.AddSpaStaticFiles(configuration =>
             {
@@ -40,7 +40,6 @@ namespace Web
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseServiceContext();
             if (!env.IsDevelopment())
             {
                 app.UseSpaStaticFiles();

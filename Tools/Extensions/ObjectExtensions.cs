@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Tools.Extensions
 {
@@ -13,7 +14,8 @@ namespace Tools.Extensions
         public static double ToDouble(this object value, int digits = 2)
         {
             return string.IsNullOrEmpty(value.ToString()) ? 0.0 :
-                Math.Round(double.Parse(GetStringWithoutSpaces(value.ToString())), digits);
+                Math.Round(double.Parse(GetStringWithoutSpaces(value.ToString()), 
+                    CultureInfo.GetCultureInfo("ru-RU")), digits);
         }
 
         /// <summary>

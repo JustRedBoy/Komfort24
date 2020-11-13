@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Models;
+using Web.Models;
 
 namespace Web.Controllers
 {
@@ -7,17 +8,17 @@ namespace Web.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly ServiceContext _serviceContext;
+        private readonly ApplicationContext _appContext;
 
-        public AccountController(ServiceContext serviceContext)
+        public AccountController(ApplicationContext appContext)
         {
-            _serviceContext = serviceContext;
+            _appContext = appContext;
         }
 
         [HttpGet]
         public Account GetAccount(string accountId)
         {
-            return _serviceContext.GetAccountById(accountId);
+            return _appContext.Service.GetAccountById(accountId);
         }
     }
 }

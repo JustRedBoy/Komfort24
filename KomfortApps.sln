@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "Web\Web.csproj", "{5
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Models", "Models\Models.csproj", "{04FBCB82-32CD-4309-A319-3C1AE5FBDE87}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tools", "Tools\Tools.csproj", "{7E761E53-7881-4BB5-A7A5-F1CFE8181598}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tools", "Tools\Tools.csproj", "{7E761E53-7881-4BB5-A7A5-F1CFE8181598}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SheetsEF", "SheetsEF\SheetsEF.csproj", "{9C079F82-D3C4-4FE0-AD29-2ECBB2F3B1BC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{7E761E53-7881-4BB5-A7A5-F1CFE8181598}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E761E53-7881-4BB5-A7A5-F1CFE8181598}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E761E53-7881-4BB5-A7A5-F1CFE8181598}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C079F82-D3C4-4FE0-AD29-2ECBB2F3B1BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C079F82-D3C4-4FE0-AD29-2ECBB2F3B1BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C079F82-D3C4-4FE0-AD29-2ECBB2F3B1BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C079F82-D3C4-4FE0-AD29-2ECBB2F3B1BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
