@@ -1,14 +1,16 @@
 ﻿<div class="flex-container">
-    <div class="flex-item f">
-        <img src="assets/logo.png" class="logo" alt="Logo">
-        <p>На сайте Вы сможете узнавать:</p>
-        <ul>
-            <li><p>Aктуальную информацию об изменении тарифов на коммунальные услуги</p></li>
-            <li><p>Aктуальную информацию об задолженностях </p></li>
-        </ul>
-    </div>
-
     <div class="flex-item">
-        <img src="assets/house-image.jpg" alt="Image">
+        <div class="flex-container-inner">
+            <img src="assets/min/logo-min.png" class="logo" alt="Logo">
+            <div class="flex-item-inner info">
+                Здесь будет публиковаться актуальная информация о коммунальных услугах
+            </div>
+            <div (click)="scrollToServicePage()" class="flex-item-inner button-inquire">
+                Состояние оплаты и начислений
+            </div>
+        </div>
+    </div>
+    <div class="flex-item">
+        <img src="assets/min/house-image-min-small.jpg" alt="Image">
     </div>
 </div>

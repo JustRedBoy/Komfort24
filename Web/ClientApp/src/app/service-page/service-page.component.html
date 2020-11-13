@@ -1,7 +1,7 @@
-﻿<div style="height: calc(100% - 200px); margin-top: 200px;">
+﻿<div id="service-page" class="service-container">
     <div class="search">
-        <h3 class="text-center">Введите номер лицевого счета</h3>
-        <input id="account-id" [(ngModel)]="accountId" (ngModelChange)="loadAccount()" (keydown.enter)="loadAccount()" type="text" class="form-control search-string" placeholder="AccountId">
+        <h3 class="title-center">Введите номер лицевого счета</h3>
+        <input #accId id="account-id" [(ngModel)]="accountId" (ngModelChange)="loadAccount()" type="text" class="form-control search-string" placeholder="Например - 7750">
     </div>
 
     <div [ngClass]="{hidden:accountFound}" id="account-not-found" class="custom-margin-top text-center hidden">
@@ -10,88 +10,90 @@
 
     <div [ngClass]="{hidden:!accountShow}" id="account" class="custom-margin-top">
         <div class="center">
+            <h3 class="text-center">{{account.owner}}</h3>
             <table class="table text-center">
                 <tr>
                     <th colspan="2" class="text-center"><span class="table-title">Содержание дома</span></th>
                 </tr>
                 <tr>
                     <th scope="row">Долг на начало месяца</th>
-                    <td>{{account.currentReport.werStartDebit - account.currentReport.werStartCredit}}</td>
-                </tr>
-                <tr>
-                    <th scope="row">Оплачено</th>
-                    <td></td>
+                    <td>{{account.currentReport.werStartState.toFixed(2)}}</td>
                 </tr>
                 <tr>
                     <th scope="row">Начисление за месяц</th>
-                    <td></td>
+                    <td>{{account.currentReport.werForMonth.toFixed(2)}}</td>
                 </tr>
                 <tr>
-                    <th scope="row">Льгота</th>
-                    <td></td>
+                    <th scope="row">Оплачено</th>
+                    <td>{{account.currentReport.werPaid.toFixed(2)}}</td>
                 </tr>
                 <tr>
                     <th scope="row">Долг на конец месяца</th>
-                    <td></td>
+                    <td>{{account.currentReport.werEndState.toFixed(2)}}</td>
                 </tr>
                 <tr>
                     <th colspan="2"><span class="table-title">Вода</span></th>
                 </tr>
                 <tr>
                     <th scope="row">Последние показания</th>
-                    <td></td>
-                </tr>
-                <tr>
-                    <th scope="row">Оплачено</th>
-                    <td></td>
+                    <td>{{account.currentReport.waterFixedPreviousValue}}</td>
                 </tr>
                 <tr>
                     <th scope="row">Текущие показания</th>
                     <td>
                         <div class="input-values">
-                            <input id="waterValue" required pattern="[0-9]{1,5}" oninput="updateTotal()" autocomplete="off" class="form-control">
-                            <span class="input-error">Введите число</span>
+                            <input id="waterValue" type="number" name="waterValue" #waterValue="ngModel" required pattern="[0-9]{1,5}" [(ngModel)]="account.currentReport.waterCurrentValue" (input)="updateTotal()" autocomplete="off" class="form-control">
+                            <span *ngIf="waterValue.invalid && (waterValue.dirty || waterValue.touched)" class="input-error">Введите число</span>
                         </div>
                     </td>
+                </tr>
+                <tr>
+                    <th scope="row">Начисление за месяц</th>
+                    <td>{{account.currentReport.waterForMonth.toFixed(2)}}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Оплачено</th>
+                    <td>{{account.currentReport.waterPaid.toFixed(2)}}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Долг на конец месяца</th>
+                    <td>{{account.currentReport.waterEndState.toFixed(2)}}</td>
                 </tr>
                 <tr>
                     <th colspan="2"><span class="table-title">Отопление</span></th>
                 </tr>
                 <tr>
                     <th scope="row">Долг на начало месяца</th>
-                    <td></td>
+                    <td>{{account.currentReport.heatingStartState.toFixed(2)}}</td>
                 </tr>
-                <tr>
-                    <th scope="row">Оплачено</th>
-                    <td></td>
-                </tr>
-                <tr id="prev">
+                <tr *ngIf="account.currentReport.heatingType != ''">
                     <th scope="row">Последние показания</th>
-                    <td></td>
+                    <td>{{account.currentReport.heatingFixedPreviousValue.toFixed(3)}}</td>
                 </tr>
-                <tr id="cur">
+                <tr *ngIf="account.currentReport.heatingType != ''">
                     <th scope="row">Текущие показания</th>
                     <td>
                         <div class="input-values">
-                            <input id="heatingValue" required pattern="\d+(\.\d{1,3})?" oninput="updateTotal()" autocomplete="off" class="form-control">
-                            <span class="input-error">Введите число</span>
+                            <input id="heatingValue" type="number" step="0.001" name="heatingValue" #heatingValue="ngModel" required pattern="\d+(\.\d{1,3})?" [(ngModel)]="account.currentReport.heatingCurrentValue" (input)="updateTotal()" autocomplete="off" class="form-control">
+                            <span *ngIf="heatingValue.invalid && (heatingValue.dirty || heatingValue.touched)" class="input-error">Введите число</span>
                         </div>
                     </td>
                 </tr>
                 <tr>
                     <th scope="row">Начисление за месяц</th>
-                    <td></td>
+                    <td>{{account.currentReport.heatingForService.toFixed(2)}}</td>
                 </tr>
                 <tr>
-                    <th scope="row">Льгота</th>
-                    <td></td>
+                    <th scope="row">Оплачено</th>
+                    <td>{{account.currentReport.heatingPaid.toFixed(2)}}</td>
                 </tr>
                 <tr>
                     <th scope="row">Долг на конец месяца</th>
-                    <td></td>
+                    <td>{{account.currentReport.heatingEndState.toFixed(2)}}</td>
                 </tr>
             </table>
-            <p id="total">Итого к оплате: </p>
+            <p id="total">Итого к оплате: {{account.currentReport.total.toFixed(2)}} грн.</p>
+            <p class="text-center" style="color: red;">При оплате коммунальных услуг через банк в обязательном порядке указать адрес!</p>
         </div>
     </div>
 </div>

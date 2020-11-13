@@ -1,4 +1,16 @@
 ﻿export class Report {
+    public heatingStartState: number = 0;
+    public heatingFixedPreviousValue: number = 0;
+    public heatingPaid: number = 0;
+    public heatingEndState: number = 0;
+    public werStartState: number = 0;
+    public werPaid: number = 0;
+    public werEndState: number = 0;
+    public waterFixedPreviousValue: number = 0;
+    public waterPaid: number = 0;
+    public waterEndState: number = 0;
+    public total: number = 0;
+
     constructor(
         public heatingStartDebit: number,
         public heatingStartCredit: number,
