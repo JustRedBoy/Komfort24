@@ -177,7 +177,7 @@
         </TabItem>
         <TabItem>
             <TabItem.Header>
-                <TextBlock Text="Генерация листовок"/>
+                <TextBlock Text="Генерация квитанций"/>
             </TabItem.Header>
             <TabItem.Content>
                 <StackPanel 
