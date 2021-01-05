@@ -15,7 +15,6 @@ namespace SheetsEF.Models
         public ApplicationContextBase(ApplicationContextOptions options)
         {
             _cache = new MemoryCache(new MemoryCacheOptions());
-            UpdatingSheetsAsync();
         }
 
         public T GetData<T>(string key)

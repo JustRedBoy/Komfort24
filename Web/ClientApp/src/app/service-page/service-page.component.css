@@ -25,10 +25,10 @@
     margin-top: 25px;
 }
 .table-title {
-    font-size: 19px;
+    font-size: 20px;
     padding: 5px;
 }
-table#values td, th {
+table td, th {
     vertical-align: middle !important;
 }
 .title-center {

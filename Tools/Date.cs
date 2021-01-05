@@ -12,7 +12,7 @@ namespace Tools
         /// </summary>
         public static string GetFullPrevMonth()
         {
-            return $"{GetNamePrevMonth()} {DateTime.Now.Year}";
+            return $"{GetNamePrevMonth()} {DateTime.Now.AddMonths(-1).Year}";
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Tools
         /// <param name="year">Year to convert</param>
         public static string GetShortYear(int year)
         {
-            return year.ToString().Substring(2);
+            return year.ToString()[2..];
         }
     }
 }

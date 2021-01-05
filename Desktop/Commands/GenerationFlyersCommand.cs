@@ -38,7 +38,7 @@ namespace Desktop.Commands
                 _processIndicator = 0;
                 _interval = 100.0 / serviceContext.TotalAccounts;
 
-                string folderPath = Environment.CurrentDirectory + $"\\Листовки за {Date.GetNamePrevMonth()}";
+                string folderPath = Environment.CurrentDirectory + $"\\Квитанции за {Date.GetNameCurMonth()}";
                 Directory.CreateDirectory(folderPath);
 
                 //start generation (every house in task)

@@ -19,9 +19,7 @@
 **/node_modules
 **/npm-debug.log
 **/obj
-**/auth/
 **/secrets.dev.yaml
 **/values.dev.yaml
-**/client_secret.json
 LICENSE
 README.md

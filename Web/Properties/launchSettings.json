@@ -28,6 +28,9 @@
       "commandLineArgs": "-t komfort24webapp",
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
       "publishAllPorts": true
     }
   }

@@ -31,6 +31,7 @@ export class ServicePageComponent {
                     this.account = data;
                     this.accountFound = true;
                     this.accountShow = true;
+                    this.updateTotal();
                 }
             });
         }

@@ -10,6 +10,7 @@
 *.userosscache
 *.sln.docstates
 client_secret.json
+run_config.txt
 auth/
 
 # User-specific files (MonoDevelop/Xamarin Studio)

@@ -115,12 +115,13 @@ namespace Desktop.Tools
             Paste(doc);
             WordReplace(doc, "{NM}", account.Owner);
             WordReplace(doc, "{AD}", account.AccountId);
-            WordReplace(doc, "{MT}", Date.GetNamePrevMonth());
+            WordReplace(doc, "{YR}", DateTime.Now.Year);
+            WordReplace(doc, "{MT}", Date.GetNameCurMonth());
             WordReplace(doc, "{FA}", account.House.FullAdress + $" кв. {account.FlatNumber}");
-            WordReplace(doc, "{MS}", Date.GetShortMonth(DateTime.Now.AddMonths(-1).Month));
-            WordReplace(doc, "{ME}", Date.GetShortMonth(DateTime.Now.Month));
-            WordReplace(doc, "{YS}", Date.GetShortYear(DateTime.Now.AddMonths(-1).Year));
-            WordReplace(doc, "{YE}", Date.GetShortYear(DateTime.Now.Year));
+            WordReplace(doc, "{MS}", Date.GetShortMonth(DateTime.Now.Month));
+            WordReplace(doc, "{ME}", Date.GetShortMonth(DateTime.Now.AddMonths(1).Month));
+            WordReplace(doc, "{YS}", Date.GetShortYear(DateTime.Now.Year));
+            WordReplace(doc, "{YE}", Date.GetShortYear(DateTime.Now.AddMonths(1).Year));
             var currentReport = account.CurrentReport;
             WordReplace(doc, "{HSS}", Math.Round(currentReport.HeatingStartDebit - currentReport.HeatingStartCredit, 2)); // debet - credit
             WordReplace(doc, "{CHV}", string.IsNullOrEmpty(currentReport.HeatingType) ? "-" : currentReport.HeatingCurrentValue.ToString()); // - or value

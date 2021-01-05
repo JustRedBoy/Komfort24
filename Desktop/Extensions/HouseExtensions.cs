@@ -15,7 +15,7 @@ namespace Desktop.Extensions
         internal static int StartFlyersGeneration(this House house, int startNum, CancellationToken token = default)
         {
             Word word = new Word();
-            string folderPath = Environment.CurrentDirectory + $"\\Листовки за {Date.GetNamePrevMonth()}";
+            string folderPath = Environment.CurrentDirectory + $"\\Квитанции за {Date.GetNameCurMonth()}";
             string filePath = folderPath + $"\\{house.ShortAdress.Replace('/', '_')}.docx";
             if (startNum == 0)
             {
