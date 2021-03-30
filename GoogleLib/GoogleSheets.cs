@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 using GoogleLib.Exceptions;
+using System.Linq;
 
 namespace GoogleLib
 {
@@ -96,7 +97,9 @@ namespace GoogleLib
         /// <exception cref="AccessDeniedException">Thrown when had problem with there was an access problem with Google Drive</exception>
         public async Task UpdateArchiveReportsInfoAsync(IList<IList<object>> reports)
         {
-            await WriteInfoAsync(reports, Sheets.ReportsSpreadSheetId, $"Info!A1:AH{reports.Count}");
+            int middleElem = reports.Count / 2;
+            await WriteInfoAsync(reports.Take(middleElem).ToList(), Sheets.ReportsSpreadSheetId, $"Info!A1:AH{middleElem}");
+            await WriteInfoAsync(reports.Skip(middleElem).ToList(), Sheets.ReportsSpreadSheetId, $"Info!A{middleElem + 1}:AH{reports.Count}");
         }
 
         /// <summary>

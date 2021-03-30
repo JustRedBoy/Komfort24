@@ -19,7 +19,7 @@ namespace Desktop.Extensions
             objects.AddRange(heating);
             objects.AddRange(wer);
             objects.Add(Date.GetNamePrevMonth());
-            objects.Add(DateTime.Now.Year);
+            objects.Add(DateTime.Now.AddMonths(-1).Year);
             return objects;
         }
     }
