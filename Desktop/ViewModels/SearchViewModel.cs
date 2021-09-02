@@ -43,7 +43,7 @@ namespace Desktop.ViewModels
                 OnPropertyChanged("FoundReportsVisibility");
             }
         }
-        public ObservableCollection<ArchiveReport> Reports { get; set; } = new ObservableCollection<ArchiveReport>();
+        public ObservableCollection<ArchiveReport2> Reports2 { get; set; } = new ObservableCollection<ArchiveReport2>();
 
         private RelayCommand _searchCommand;
         public RelayCommand SearchCommand
@@ -85,7 +85,7 @@ namespace Desktop.ViewModels
                 {
                     try
                     {
-                        await Task.Run(() => PrintReportsCommand.Print(Reports));
+                        await Task.Run(() => PrintReportsCommand.Print(Reports2));
                     }
                     catch (Exception e)
                     {
@@ -96,11 +96,11 @@ namespace Desktop.ViewModels
                         RelayCommand.RaiseCanExecuteChanged();
                     }
                 },
-                obj => !AppViewModel.IsAnyProcessing() && Reports.Count > 0);
+                obj => !AppViewModel.IsAnyProcessing() && Reports2.Count > 0);
             }
         }
 
-        private void SearchCompleted(List<ArchiveReport> reports, string errorMessage = null)
+        private void SearchCompleted(List<ArchiveReport2> reports, string errorMessage = null)
         {
             if (reports != null)
             {
@@ -123,14 +123,14 @@ namespace Desktop.ViewModels
             FoundReportsVisibility = 2;
         }
 
-        private void UpdateReports(List<ArchiveReport> reports)
+        private void UpdateReports(List<ArchiveReport2> reports)
         {
-            Reports.Clear();
+            Reports2.Clear();
             if (reports != null && reports.Count > 0)
             {
-                foreach (ArchiveReport report in reports)
+                foreach (ArchiveReport2 report in reports)
                 {
-                    Reports.Add(report);
+                    Reports2.Add(report);
                 }
             }
         }

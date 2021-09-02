@@ -13,7 +13,7 @@ namespace Tools.Extensions
         /// <returns>Double value</returns>
         public static double ToDouble(this object value, int digits = 2)
         {
-            return string.IsNullOrEmpty(value.ToString()) ? 0.0 :
+            return string.IsNullOrWhiteSpace(value.ToString()) ? 0.0 :
                 Math.Round(double.Parse(GetStringWithoutSpaces(value.ToString()), 
                     CultureInfo.GetCultureInfo("ru-RU")), digits);
         }
@@ -25,7 +25,7 @@ namespace Tools.Extensions
         /// <returns>Int value</returns>
         public static int ToInt(this object value)
         {
-            return string.IsNullOrEmpty(value.ToString()) ? 0 : 
+            return string.IsNullOrWhiteSpace(value.ToString()) ? 0 : 
                 int.Parse(GetStringWithoutSpaces(value.ToString()));
         }
 

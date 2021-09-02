@@ -106,9 +106,12 @@ namespace Desktop.Commands
                 archiveReports.AddRange(serviceContext.Houses[i].GetObjects());
             }
             UpdateInfo($"Сохранение отчета ...");
-            var oldReports = await sheets.GetArchiveReportsInfoAsync();
-            archiveReports.AddRange(oldReports);
-            await sheets.UpdateArchiveReportsInfoAsync(archiveReports);
+            var oldReports = await sheets.GetArchiveReports2InfoAsync();
+            if (oldReports != null)
+            {
+                archiveReports.AddRange(oldReports);
+            }
+            await sheets.UpdateArchiveReports2InfoAsync(archiveReports);
         }
 
         private static async Task CorrectFiles(GoogleSheets sheets, ServiceContext serviceContext)

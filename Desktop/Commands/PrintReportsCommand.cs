@@ -16,7 +16,7 @@ namespace Desktop.Commands
         /// Starting the reports printing process
         /// </summary>
         /// <param name="reports">Reports to print</param>
-        internal static void Print(IEnumerable<ArchiveReport> reports) 
+        internal static void Print(IEnumerable<ArchiveReport2> reports) 
         {
             if (reports == null || reports.Count() <= 0) return;
             Processing = true;

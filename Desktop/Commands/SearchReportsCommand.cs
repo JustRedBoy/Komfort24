@@ -10,13 +10,14 @@ namespace Desktop.Commands
     {
         internal static bool Processing { get; set; } = false;
         private static IList<IList<object>> ArchiveReportsInfo { get; set; } = null;
+        private static IList<IList<object>> ArchiveReports2Info { get; set; } = null;
 
         /// <summary>
         /// Starting the archive reports search process
         /// </summary>
         /// <param name="accountId">Account to search reports</param>
         /// <returns>List of achive reports</returns>
-        internal static async Task<List<ArchiveReport>> SearchAsync(string accountId)
+        internal static async Task<List<ArchiveReport2>> SearchAsync(string accountId)
         {
             Processing = true;
             try
@@ -27,13 +28,27 @@ namespace Desktop.Commands
                     {
                         GoogleSheets googleSheets = new GoogleSheets();
                         ArchiveReportsInfo = await googleSheets.GetArchiveReportsInfoAsync();
+                        ArchiveReports2Info = await googleSheets.GetArchiveReports2InfoAsync();
                     }
-                    List<ArchiveReport> reports = new List<ArchiveReport>();
-                    foreach (var item in ArchiveReportsInfo)
+                    List<ArchiveReport2> reports = new List<ArchiveReport2>();
+                    if (ArchiveReports2Info != null)
                     {
-                        if (item[1].ToString() == accountId)
+                        foreach (var item in ArchiveReports2Info)
                         {
-                            reports.Add(new ArchiveReport(item));
+                            if (item[1].ToString() == accountId)
+                            {
+                                reports.Add(new ArchiveReport2(item));
+                            }
+                        }
+                    }
+                    if (ArchiveReportsInfo != null)
+                    {
+                        foreach (var item in ArchiveReportsInfo)
+                        {
+                            if (item[1].ToString() == accountId)
+                            {
+                                reports.Add(new ArchiveReport2(new ArchiveReport(item)));
+                            }
                         }
                     }
                     return reports;
