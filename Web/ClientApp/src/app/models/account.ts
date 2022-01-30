@@ -7,6 +7,6 @@ export class Account {
         public accountId: string = "",
         public flatNumber: string = "",
         public owner: string = "",
-        public house: House = new House("", new Rates(0, 0, 0, 0, 0, 0)),
-        public currentReport: Report = new Report(0, 0, 0, "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)) { }
+        public house: House = new House("", new Rates(0, 0, 0, 0, 0, 0, 0, 0, 0)),
+        public currentReport: Report = new Report(0, 0, 0, "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)) { }
 }

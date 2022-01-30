@@ -22,8 +22,8 @@
         public heatingForService: number,
         public heatingPreviliges: number,
         public heatingTotal: number,
-        public heatingCash: number,
         public heatingBank: number,
+        public heatingCash: number,
         public heatingEndDebit: number,
         public heatingEndCredit: number,
 
@@ -31,6 +31,9 @@
         public werStartCredit: number,
         public werSquare: number,
         public werForMonth: number,
+        public repairForMonth: number,
+        public livingPersons: number,
+        public garbageForMonth: number,
         public waterCurrentValue: number,
         public waterPreviousValue: number,
         public waterValue: number,
@@ -38,8 +41,9 @@
         public werWaterForService: number,
         public werPreviliges: number,
         public werTotal: number,
-        public werCash: number,
+        public werRepair: number,
         public werBank: number,
+        public werCash: number,
         public werEndDebit: number,
         public werEndCredit: number) { }
 }

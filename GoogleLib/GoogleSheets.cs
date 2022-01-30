@@ -76,7 +76,7 @@ namespace GoogleLib
         /// <exception cref="AccessDeniedException">Thrown when had problem with there was an access problem with Google Drive</exception>
         public async Task<IList<IList<object>>> GetRatesInfoAsync()
         {
-            return await ReadInfoAsync(Sheets.ServiceSpreadSheetId, "Rates!B2:I10");
+            return await ReadInfoAsync(Sheets.ServiceSpreadSheetId, "Rates!B2:J10");
         }
 
         /// <summary>

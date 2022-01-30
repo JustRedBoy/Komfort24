@@ -15,6 +15,7 @@ namespace Models
         //Temporarily unused
         public double CentralHeatingForSomeRate { get; set; }
         public double GarbageRate { get; }
+        public double RepairRate { get; }
 
         public Rates(IList<object> rates)
         {
@@ -26,6 +27,7 @@ namespace Models
             CentralHeatingForAllRate = rates[5].ToDouble(3);
             CentralHeatingForSomeRate = rates[6].ToDouble(3);
             GarbageRate = rates[7].ToDouble(3);
+            RepairRate = rates[8].ToDouble(3);
         }
     }
 }

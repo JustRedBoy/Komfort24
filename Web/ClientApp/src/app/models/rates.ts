@@ -5,5 +5,8 @@
         public waterRate: number,
         public centralHeatingRate: number,
         public customHeatingRate: number,
-        public garbageRate: number) { }
+        public centralHeatingForAllRate: number, // Temporarily unused
+        public centralHeatingForSomeRate: number, // Temporarily unused
+        public garbageRate: number,
+        public repairRate: number) { }
 }

@@ -8,15 +8,15 @@ namespace Desktop.Extensions
     {
         internal static void TransitionToNewMonth(this Report2 report)
         {
-            report.HeatingStartDebit = report.HeatingEndDebit;
-            report.HeatingStartCredit = report.HeatingEndCredit;
-            report.HeatingPreviousValue = report.HeatingCurrentValue;
+            report.HeatingStartDebit = Math.Round(report.HeatingEndDebit, 2);
+            report.HeatingStartCredit = Math.Round(report.HeatingEndCredit, 2);
+            report.HeatingPreviousValue = Math.Round(report.HeatingCurrentValue, 3);
             report.HeatingPreviliges = 0.0;
             report.HeatingCash = 0.0;
             report.HeatingBank = 0.0;
 
-            report.WerStartDebit = report.WerEndDebit;
-            report.WerStartCredit = report.WerEndCredit;
+            report.WerStartDebit = Math.Round(report.WerEndDebit, 2);
+            report.WerStartCredit = Math.Round(report.WerEndCredit, 2);
             report.WaterPreviousValue = report.WaterCurrentValue;
             report.WerPreviliges = 0.0;
             report.WerRepair = 0.0;
