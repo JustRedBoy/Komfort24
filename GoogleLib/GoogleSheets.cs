@@ -7,7 +7,7 @@ using GoogleLib.Exceptions;
 
 namespace GoogleLib
 {
-    public class GoogleSheets
+    public class GoogleSheets : IDisposable
     {
         private readonly SheetsService _service;
 
@@ -60,13 +60,13 @@ namespace GoogleLib
         }
 
         /// <summary>
-        /// Get information about house
+        /// Get information about houses
         /// </summary>
         /// <returns>Accounts information</returns>
         /// <exception cref="AccessDeniedException">Thrown when had problem with there was an access problem with Google Drive</exception>
         public async Task<IList<IList<object>>> GetAccountsInfoAsync()
         {
-            return await ReadInfoAsync(Sheets.ServiceSpreadSheetId, "Houses!A1:AG1000");
+            return await ReadInfoAsync(Sheets.ServiceSpreadSheetId, "Houses!A1:AK1000");
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace GoogleLib
         /// <exception cref="AccessDeniedException">Thrown when had problem with there was an access problem with Google Drive</exception>
         public async Task<IList<IList<object>>> GetRatesInfoAsync()
         {
-            return await ReadInfoAsync(Sheets.ServiceSpreadSheetId, "Rates!B2:G10");
+            return await ReadInfoAsync(Sheets.ServiceSpreadSheetId, "Rates!B2:J10");
         }
 
         /// <summary>
@@ -90,13 +90,23 @@ namespace GoogleLib
         }
 
         /// <summary>
+        /// Get information about archive reports2
+        /// </summary>
+        /// <returns>All archive reports</returns>
+        /// <exception cref="AccessDeniedException">Thrown when had problem with there was an access problem with Google Drive</exception>
+        public async Task<IList<IList<object>>> GetArchiveReports2InfoAsync()
+        {
+            return await ReadInfoAsync(Sheets.ReportsSpreadSheetId2, "Info!A1:AL250000");
+        }
+
+        /// <summary>
         /// Update information about archive reports
         /// </summary>
         /// <param name="reports">All reports</param>
         /// <exception cref="AccessDeniedException">Thrown when had problem with there was an access problem with Google Drive</exception>
-        public async Task UpdateArchiveReportsInfoAsync(IList<IList<object>> reports)
+        public async Task UpdateArchiveReports2InfoAsync(IList<IList<object>> reports)
         {
-            await WriteInfoAsync(reports, Sheets.ReportsSpreadSheetId, $"Info!A1:AH{reports.Count}");
+            await WriteInfoAsync(reports, Sheets.ReportsSpreadSheetId2, $"Info!A1:AL{reports.Count}");
         }
 
         /// <summary>
@@ -113,8 +123,8 @@ namespace GoogleLib
             int offset = 9;
             await WriteInfoAsync(heating, Sheets.HeatingSpreadSheetId, $"{houseShortAdress}!D{offset}:Q{heating.Count + offset}");
             await WriteInfoAsync(month, Sheets.HeatingSpreadSheetId, $"{houseShortAdress}!I2:J2");
-            await WriteInfoAsync(wer, Sheets.WerSpreadSheetId, $"{houseShortAdress}!D{offset}:R{wer.Count + offset}");
-            await WriteInfoAsync(month, Sheets.WerSpreadSheetId, $"{houseShortAdress}!I2:J2");
+            await WriteInfoAsync(wer, Sheets.WerSpreadSheetId, $"{houseShortAdress}!D{offset}:V{wer.Count + offset}");
+            await WriteInfoAsync(month, Sheets.WerSpreadSheetId, $"{houseShortAdress}!L2:M2");
         }
 
         /// <summary>
@@ -125,7 +135,12 @@ namespace GoogleLib
         public async Task UpdateGeneralMonthAsync(IList<IList<object>> monthAndYear)
         {
             await WriteInfoAsync(monthAndYear, Sheets.HeatingSpreadSheetId, "Сводная ведомость!H2:I2");
-            await WriteInfoAsync(monthAndYear, Sheets.WerSpreadSheetId, "Сводная ведомость!H2:I2");
+            await WriteInfoAsync(monthAndYear, Sheets.WerSpreadSheetId, "Сводная ведомость!J2:K2");
+        }
+
+        public void Dispose()
+        {
+            _service.Dispose();
         }
     }
 }

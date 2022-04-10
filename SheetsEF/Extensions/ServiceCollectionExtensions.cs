@@ -11,7 +11,6 @@ namespace SheetsEF.Extensions
     {
         public static void AddSheetsContext<T>(this IServiceCollection services, string updateTime) where T : ApplicationContextBase
         {
-            services.AddSingleton(new ApplicationContextOptions() { UpdateTime = updateTime });
             services.AddSingleton<T>();
 
             services.AddSingleton<IJobFactory, JobFactory>();

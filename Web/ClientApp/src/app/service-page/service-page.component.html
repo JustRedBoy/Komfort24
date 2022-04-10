@@ -20,16 +20,32 @@
                     <td>{{account.currentReport.werStartState.toFixed(2)}}</td>
                 </tr>
                 <tr *ngIf="+account.flatNumber <= 6">
-                    <th scope="row">Тариф</th>
+                    <th scope="row">Тариф содержания дома</th>
                     <td>{{account.house.rates.specialWerRate.toFixed(3)}}</td>
                 </tr>
                 <tr *ngIf="+account.flatNumber > 6">
-                    <th scope="row">Тариф</th>
+                    <th scope="row">Тариф содержания дома</th>
                     <td>{{account.house.rates.generalWerRate.toFixed(3)}}</td>
                 </tr>
                 <tr>
-                    <th scope="row">Начисление за месяц</th>
+                    <th scope="row">Начисление за содержания дома</th>
                     <td>{{account.currentReport.werForMonth.toFixed(2)}}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Тариф текущего ремонта</th>
+                    <td>{{account.house.rates.repairRate.toFixed(3)}}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Начисление за текущий ремонт</th>
+                    <td>{{account.currentReport.repairForMonth.toFixed(2)}}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Тариф вывоза мусора</th>
+                    <td>{{account.house.rates.garbageRate.toFixed(3)}}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Начисление за вывоз мусора</th>
+                    <td>{{account.currentReport.garbageForMonth.toFixed(2)}}</td>
                 </tr>
                 <tr>
                     <th scope="row">Оплачено</th>

@@ -8,7 +8,7 @@ namespace Models
         public string FlatNumber { get; }
         public string Owner { get; }
         public House House { get; }
-        public Report CurrentReport { get; }
+        public Report2 CurrentReport { get; }
 
         public Account(IList<object> accountInfo, House house)
         {
@@ -17,7 +17,7 @@ namespace Models
             Owner = accountInfo[2].ToString();
             House = house;
 
-            CurrentReport = new Report(accountInfo);
+            CurrentReport = new Report2(accountInfo);
         }
     }
 }

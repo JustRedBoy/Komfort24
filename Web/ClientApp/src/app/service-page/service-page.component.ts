@@ -87,6 +87,11 @@ export class ServicePageComponent {
                     else {
                         this.account.currentReport.heatingEndState = this.account.currentReport.heatingStartState + this.account.currentReport.heatingForService - this.account.currentReport.heatingPreviliges;
                     }
+
+                    if (this.account.currentReport.heatingEndState < 0.01 && this.account.currentReport.heatingEndState > -0.01) {
+                        this.account.currentReport.heatingEndState = 0;
+                    }
+
                     if (this.account.currentReport.heatingEndState > 0) {
                         total += this.account.currentReport.heatingEndState;
                     }

@@ -10,8 +10,7 @@ namespace Web.Models
             get => GetData<ServiceContext>(nameof(Service));
         }
  
-        public ApplicationContext(ApplicationContextOptions options)
-            : base(options)
+        public ApplicationContext() : base()
         { }
     }
 }

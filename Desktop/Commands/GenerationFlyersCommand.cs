@@ -95,7 +95,7 @@ namespace Desktop.Commands
 
         internal static void UpdateInfo()
         {
-            UpdateProgress(++_processIndicator * _interval);
+            UpdateProgress?.Invoke(++_processIndicator * _interval);
         }
     }
 }

@@ -34,12 +34,13 @@ namespace Models
 
             Houses = new List<House>()
             {
-                new House("20/1", accounts.Take(100), rates[0]),
-                new House("24/2", accounts.Skip(100).Take(100), rates[1]),
-                new House("22/2", accounts.Skip(200).Take(100), rates[2]),
-                new House("26/2", accounts.Skip(300).Take(100), rates[3]),
-                new House("26/1", accounts.Skip(400).Take(100), rates[4]),
-                new House("20/2", accounts.Skip(500).Take(100), rates[5])
+                new House("20/1", accounts.Take(120), rates[0]),
+                new House("24/2", accounts.Skip(120).Take(120), rates[1]),
+                new House("22/2", accounts.Skip(240).Take(120), rates[2]),
+                new House("26/2", accounts.Skip(360).Take(120), rates[3]),
+                new House("26/1", accounts.Skip(480).Take(120), rates[4]),
+                new House("20/2", accounts.Skip(600).Take(120), rates[5]),
+                new House("24A",  accounts.Skip(720).Take(120), rates[6])
             };
         }
 

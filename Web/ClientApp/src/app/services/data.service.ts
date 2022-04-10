@@ -26,7 +26,7 @@ export class DataService {
                     currentReport.waterEndState = 0;
 
                     currentReport.werStartState = currentReport.werStartDebit - currentReport.werStartCredit;
-                    currentReport.werPaid = currentReport.werBank + currentReport.heatingCash - currentReport.waterPaid;
+                    currentReport.werPaid = currentReport.werBank + currentReport.werCash + currentReport.werRepair - currentReport.waterPaid;
                     currentReport.werEndState = currentReport.werEndDebit - currentReport.werEndCredit;
 
                     return account;

@@ -60,7 +60,7 @@ namespace Desktop.Commands
         {
             UpdateInfo("Проверка ...");
             IEnumerable<string> files = await drive.GetFilesAsync();
-            if (files != null && files.Count() > 0)
+            if (files.Count() > 0)
             {
                 foreach (string name in files)
                 {
@@ -106,9 +106,12 @@ namespace Desktop.Commands
                 archiveReports.AddRange(serviceContext.Houses[i].GetObjects());
             }
             UpdateInfo($"Сохранение отчета ...");
-            var oldReports = await sheets.GetArchiveReportsInfoAsync();
-            archiveReports.AddRange(oldReports);
-            await sheets.UpdateArchiveReportsInfoAsync(archiveReports);
+            var oldReports = await sheets.GetArchiveReports2InfoAsync();
+            if (oldReports != null)
+            {
+                archiveReports.AddRange(oldReports);
+            }
+            await sheets.UpdateArchiveReports2InfoAsync(archiveReports);
         }
 
         private static async Task CorrectFiles(GoogleSheets sheets, ServiceContext serviceContext)
@@ -124,7 +127,7 @@ namespace Desktop.Commands
 
         private static void UpdateInfo(string message)
         {
-            UpdateProgress(++_processIndicator * _interval, message);
+            UpdateProgress?.Invoke(++_processIndicator * _interval, message);
         }
     }
 }
