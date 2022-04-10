@@ -60,7 +60,7 @@ namespace Desktop.Commands
         {
             UpdateInfo("Проверка ...");
             IEnumerable<string> files = await drive.GetFilesAsync();
-            if (files != null && files.Count() > 0)
+            if (files.Count() > 0)
             {
                 foreach (string name in files)
                 {
@@ -127,7 +127,7 @@ namespace Desktop.Commands
 
         private static void UpdateInfo(string message)
         {
-            UpdateProgress(++_processIndicator * _interval, message);
+            UpdateProgress?.Invoke(++_processIndicator * _interval, message);
         }
     }
 }

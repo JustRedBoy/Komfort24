@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace SheetsEF.Models
 {
-    public class ApplicationContextBase : ISheetsContext, IData
+    public class ApplicationContextBase : ISheetsContext, IData, IDisposable
     {
         private readonly MemoryCache _cache;
 
-        public ApplicationContextBase(ApplicationContextOptions options)
+        public ApplicationContextBase()
         {
             _cache = new MemoryCache(new MemoryCacheOptions());
         }
@@ -49,6 +49,11 @@ namespace SheetsEF.Models
             {
                 await GetDataFromSheetsAsync(prop.Name);
             }
+        }
+
+        public void Dispose()
+        {
+            _cache.Dispose();
         }
     }
 }

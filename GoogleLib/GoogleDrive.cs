@@ -9,7 +9,7 @@ using Tools;
 
 namespace GoogleLib
 {
-    public class GoogleDrive
+    public class GoogleDrive : IDisposable
     {
         private readonly DriveService _service;
 
@@ -99,6 +99,11 @@ namespace GoogleLib
         {
             await CopyFileAsync(Sheets.HeatingSpreadSheetId, $"Ведомость О ({Date.GetFullPrevMonth()})", folderId);
             await CopyFileAsync(Sheets.WerSpreadSheetId, $"Ведомость СД ({Date.GetFullPrevMonth()})", folderId);
+        }
+
+        public void Dispose()
+        {
+            _service.Dispose();
         }
     }
 }

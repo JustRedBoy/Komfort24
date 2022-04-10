@@ -18,7 +18,7 @@ namespace Web.Controllers
         [HttpGet]
         public Account GetAccount(string accountId)
         {
-            return _appContext.Service.GetAccountById(accountId);
+            return _appContext?.Service?.GetAccountById(accountId);
         }
     }
 }

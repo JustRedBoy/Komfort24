@@ -7,7 +7,7 @@ using GoogleLib.Exceptions;
 
 namespace GoogleLib
 {
-    public class GoogleSheets
+    public class GoogleSheets : IDisposable
     {
         private readonly SheetsService _service;
 
@@ -136,6 +136,11 @@ namespace GoogleLib
         {
             await WriteInfoAsync(monthAndYear, Sheets.HeatingSpreadSheetId, "Сводная ведомость!H2:I2");
             await WriteInfoAsync(monthAndYear, Sheets.WerSpreadSheetId, "Сводная ведомость!J2:K2");
+        }
+
+        public void Dispose()
+        {
+            _service.Dispose();
         }
     }
 }
