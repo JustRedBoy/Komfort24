@@ -135,19 +135,26 @@ namespace Desktop.Tools
             string flatNumber = account.FlatNumber.Contains('/') ? account.FlatNumber[0..^2] : account.FlatNumber;
             WordReplace(doc, "{WRR}", flatNumber.ToInt() < 7 ? rates.SpecialWerRate : rates.GeneralWerRate); // special or general
             WordReplace(doc, "{FWR}", Math.Round(currentReport.WerForMonth - currentReport.WerPreviliges, 2)); // forWer - privileges
-            WordReplace(doc, "{WRP}", Math.Round(currentReport.WerCash + currentReport.WerBank - currentReport.WaterForMonth, 2)); // cashbox + bank - forWater
+            var garbagePayment = Math.Round(
+                (currentReport.WerCash + currentReport.WerBank - currentReport.WaterForMonth) > 0 ?
+                ((currentReport.WerCash + currentReport.WerBank - currentReport.WaterForMonth) >= currentReport.GarbageForMonth ?
+                currentReport.GarbageForMonth :
+                (currentReport.WerCash + currentReport.WerBank - currentReport.WaterForMonth)) :
+                0.0, 2);
+            WordReplace(doc, "{WRP}", Math.Round(currentReport.WerCash + currentReport.WerBank - currentReport.WaterForMonth - garbagePayment, 2)); // cashbox + bank - forWater - garbagePayment
             WordReplace(doc, "{WRSE}", Math.Round(currentReport.WerEndDebit - currentReport.WerEndCredit, 2)); // debet - credit
+            WordReplace(doc, "{RR}", rates.RepairRate); // repair rate
+            WordReplace(doc, "{FR}", currentReport.RepairForMonth); // for repair
+            WordReplace(doc, "{RP}", currentReport.WerRepair); // repair payment
             WordReplace(doc, "{CWV}", currentReport.WaterCurrentValue); // current water value
             WordReplace(doc, "{PWV}", currentReport.WaterPreviousValue); // prev water value
             WordReplace(doc, "{WV}", currentReport.WaterValue);  // water value
             WordReplace(doc, "{WTR}", rates.WaterRate); // water rate
             WordReplace(doc, "{FWT}", currentReport.WaterForMonth); // for water
             WordReplace(doc, "{WTP}", currentReport.WaterForMonth); // water payment
-            WordReplace(doc, "{GSS}", "-");
-            WordReplace(doc, "{GR}", "-");
-            WordReplace(doc, "{FG}", "-");
-            WordReplace(doc, "{GP}", "-");
-            WordReplace(doc, "{GSE}", "-");
+            WordReplace(doc, "{GR}", rates.GarbageRate); // garbage rate
+            WordReplace(doc, "{FG}", currentReport.GarbageForMonth); // for garbage
+            WordReplace(doc, "{GP}", garbagePayment); // garbage payment
         }
 
         private void CreateTemplateReportsTable(Document doc)
