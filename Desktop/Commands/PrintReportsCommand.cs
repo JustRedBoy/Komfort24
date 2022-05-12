@@ -22,7 +22,11 @@ namespace Desktop.Commands
             Processing = true;
 
             List<PrintReport> printReports = new List<PrintReport>();
-            for (int i = 0; i < 36; i++)
+
+            int countRecords = reports.Count();
+            countRecords = countRecords < 36 ? countRecords : 36;
+
+            for (int i = 0; i < countRecords; i++)
             {
                 printReports.Add(new PrintReport(reports.ElementAt(i)));
             }
