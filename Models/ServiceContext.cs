@@ -8,6 +8,8 @@ namespace Models
 {
     public class ServiceContext
     {
+        private const int MaxAccountNumber = 120;
+
         public int TotalHouses { get => Houses.Count; }
         public int TotalAccounts
         {
@@ -32,16 +34,16 @@ namespace Models
             var accounts = await googleSheets.GetAccountsInfoAsync();
             var rates = await googleSheets.GetRatesInfoAsync();
 
-            Houses = new List<House>()
+            Houses = new List<House>();
+            List<string> houses = new List<string>()
             {
-                new House("20/1", accounts.Take(120), rates[0]),
-                new House("24/2", accounts.Skip(120).Take(120), rates[1]),
-                new House("22/2", accounts.Skip(240).Take(120), rates[2]),
-                new House("26/2", accounts.Skip(360).Take(120), rates[3]),
-                new House("26/1", accounts.Skip(480).Take(120), rates[4]),
-                new House("20/2", accounts.Skip(600).Take(120), rates[5]),
-                new House("24A",  accounts.Skip(720).Take(120), rates[6])
+                "20/1", "24/2", "22/2", "26/2", "26/1", "20/2", "24A"
             };
+
+            for (int i = 0; i < houses.Count; i++)
+            {
+                Houses.Add(new House(houses[i], accounts.Skip(MaxAccountNumber * i).Take(MaxAccountNumber), rates[i]));
+            }
         }
 
         /// <summary>
