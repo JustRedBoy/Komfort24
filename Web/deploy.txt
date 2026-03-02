@@ -1,0 +1,3 @@
+﻿docker build -t "justredboy/web" -f "Web\Dockerfile" .
+docker login -p "" -u ""
+docker push justredboy/web:latest

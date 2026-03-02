@@ -216,12 +216,12 @@ namespace Desktop.Tools
             table.Cell(1, 3).Range.Text = "Кв-та итого на начало месяца";
             table.Cell(1, 4).Range.Text = "Начисл. за отопл.";
             table.Cell(1, 5).Range.Text = "Начисл. за кв-ту";
-            table.Cell(1, 6).Range.Text = "Начисл. за ремонт";
+            table.Cell(1, 6).Range.Text = "Начисл. за тек. ремонт";
             table.Cell(1, 7).Range.Text = "Начисл. за воду";
             table.Cell(1, 8).Range.Text = "Начисл. за вывоз мусора";
             table.Cell(1, 9).Range.Text = "Оплата отопл.";
             table.Cell(1, 10).Range.Text = "Оплата кв-та (+мусор)";
-            table.Cell(1, 11).Range.Text = "Оплата ремонт";
+            table.Cell(1, 11).Range.Text = "Оплата тек. ремонта";
             table.Cell(1, 12).Range.Text = "Оплата холод. вода";
             table.Cell(1, 13).Range.Text = "Отопл. итого к оплате";
             table.Cell(1, 14).Range.Text = "Кв-та итого к оплате";
