@@ -11,6 +11,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
     <COMReference Include="Microsoft.Office.Word.dll">
       <Guid>00020905-0000-0000-c000-000000000046</Guid>
       <VersionMajor>8</VersionMajor>

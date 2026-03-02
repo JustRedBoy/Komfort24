@@ -20,10 +20,11 @@ KomfortApps.sln
 ├── Tools/            — Utilities (date helpers, validators, extensions)
 ├── Web/              — ASP.NET Core backend + Angular 10 SPA
 │   └── ClientApp/    — Angular frontend
-└── Desktop/          — WPF desktop app (Windows only)
+├── Desktop/          — WPF desktop app (Windows only)
+└── Tests/            — xUnit unit tests (covers all 6 projects)
 ```
 
-All six `.csproj` files target **netcoreapp3.1**. The Desktop project also sets `<UseWPF>true</UseWPF>` and adds a COM reference to Microsoft Word for document generation.
+All seven `.csproj` files target **netcoreapp3.1**. The Desktop project also sets `<UseWPF>true</UseWPF>` and adds a COM reference to Microsoft Word for document generation.
 
 ---
 
@@ -40,6 +41,7 @@ All six `.csproj` files target **netcoreapp3.1**. The Desktop project also sets 
 | Desktop UI | WPF (.NET Core 3.1, Windows only) |
 | Document gen | Microsoft Office Word COM Interop |
 | Containerisation | Docker (multi-stage, Node 14 + .NET 3.1) |
+| Testing | xUnit 2.4.2, Moq 4.16.1 |
 
 ---
 
@@ -271,15 +273,15 @@ Single static method. Called before any Google Sheets lookup to guard against in
 - **Extension methods:** Domain operations that don't belong in models are placed in `Desktop/Extensions/` (e.g., `HouseExtensions`, `Report2Extensions`, `AccountExtensions`). These are `internal static` and not part of the shared `Models` or `Tools` assemblies.
 - **Google API errors:** Always caught and re-thrown as `GoogleLib.Exceptions.AccessDeniedException`. Display `HelpMessage` to the user; `ErrorCode` is `-1` (network), `-2` (Google API), `-3` (other).
 - **`[JsonIgnore]`:** Applied to `House.ShortAdress`, `House.Accounts`, and `House.FlatCount` to avoid circular references and noise in the Web API response.
-- **Rounding:** Financial values rounded to 2 dp; meter readings (heating) to 3 dp. Use `Math.Round` explicitly before writing back to Sheets.
-- **No tests:** There are no test projects in the solution. Validate changes manually.
+- **Rounding:** Financial values rounded to 2 dp; meter readings (heating) to 3 dp. Use `Math.Round` explicitly before writing back to Sheets. Note: `Math.Round` uses banker's rounding by default (MidpointRounding.ToEven).
+- **InternalsVisibleTo:** `Desktop.csproj` declares `InternalsVisibleTo("Tests")` so the test project can access `internal static` extension classes.
 
 ---
 
 ## Build Commands Reference
 
 ```bash
-# Full solution build
+# Full solution build (excludes Desktop due to COM reference — use Visual Studio for Desktop)
 dotnet build KomfortApps.sln
 
 # Web app — run in development
@@ -298,6 +300,34 @@ npm run build -- --prod  # production build
 # Docker
 docker build -f Web/Dockerfile -t komfort24-web .
 ```
+
+### Running Tests
+
+The test project references Desktop (COM Interop), so it must be built with MSBuild (Visual Studio), not `dotnet build`:
+
+```bash
+# Build via MSBuild (Visual Studio must be installed)
+msbuild Tests/Tests.csproj -restore -t:Build -p:Configuration=Debug
+
+# Run tests from the pre-built DLL
+dotnet test Tests/bin/Debug/netcoreapp3.1/Tests.dll
+```
+
+Alternatively, open the solution in Visual Studio and run tests via Test Explorer.
+
+### Test Project Structure
+
+```
+Tests/
+├── Tools/        — DateTests, MatchingTests, ObjectExtensionsTests
+├── Models/       — Rates, Account, House, Report2, Report, ArchiveReport(2), ServiceContext
+├── Desktop/      — Report2Extensions, HouseExtensions, AccountExtensions
+├── GoogleLib/    — AccessDeniedExceptionTests
+├── SheetsEF/     — ApplicationContextBaseTests
+└── Web/          — AccountControllerTests
+```
+
+All tests run without `client_secret.json` — external dependencies are mocked or tested via reflection.
 
 ---
 
@@ -318,3 +348,7 @@ docker build -f Web/Dockerfile -t komfort24-web .
 7. **No dependency injection in Desktop.** The Desktop project does not use `IServiceCollection`; objects are newed up directly. The SheetsEF DI extension is only used by the Web project.
 
 8. **`client_secret.json` is required at runtime but must not be committed.** It is already in `.gitignore`. Never add it to source control.
+
+9. **Tests require MSBuild (Visual Studio) to build** because the Desktop project uses COM Interop (`Microsoft.Office.Interop.Word`), which is not supported by `dotnet build`. After building with MSBuild, run tests via `dotnet test Tests/bin/Debug/netcoreapp3.1/Tests.dll`.
+
+10. **When modifying business logic, keep tests in sync.** Test files mirror the source structure in `Tests/`. If changing `Report2Extensions.GetFormula`, update `Tests/Desktop/Report2ExtensionsTests.cs`. If adding new heating types, add corresponding test cases.
